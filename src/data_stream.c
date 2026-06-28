@@ -3,9 +3,22 @@
    MÓDULO: data_stream.c (Tratamento de Fluxo de Dados)
    ========================================================================== */
 
+// --- [ DEFINIÇÕES DE TIPOS GLOBAIS ] ---
 typedef unsigned int uint;
 typedef unsigned char byte;
 
+// --- [ SÍMBOLOS EXTERNOS DO EXECUTÁVEL ] ---
+extern int DAT_00005fb0;
+
+// --- [ FUNÇÕES DE CONTROLE DE EXCEÇÃO ] ---
+void halt_baddata(void) {
+    while(1); // Trava o fluxo caso uma instrução corrompida seja atingida
+}
+
+/* ==========================================================================
+   FUNÇÃO: FUN_00004d06
+   DESCRIÇÃO: Processador de buffers de dados brutos e máscaras de alinhamento
+   ========================================================================== */
 void FUN_00004d06(int param_1, int *param_2, int param_3)
 {
     uint uVar1;
@@ -18,7 +31,8 @@ void FUN_00004d06(int param_1, int *param_2, int param_3)
     
     do {
         uVar1 = *(uint *)(unaff_r5 + 0x2c);
-        while( 1 ) {
+        
+        while (1) {
             *param_2 = uVar1 << 10;
             param_2[1] = (int)param_2;
             param_2[2] = param_3;
@@ -30,7 +44,7 @@ void FUN_00004d06(int param_1, int *param_2, int param_3)
             unaff_r5 = (uVar1 & 0x3fffff) << 6;
             uVar1 = (uVar1 & 0x3fffff) << 9;
             
-            while( 1 ) {
+            while (1) {
                 uVar2 = uVar1;
                 *param_2 = uVar2 << 0xe;
                 param_2[1] = (int)param_2;
@@ -49,13 +63,14 @@ void FUN_00004d06(int param_1, int *param_2, int param_3)
                 
                 if ((int)unaff_r4 < 0) {
                     *unaff_r6 = 0x68;
-                    while(1) {
-                        *unaff_r6 = 0x68; // Impede que o compilador acuse loop quebrado
+                    while (1) {
+                        *unaff_r6 = 0x68; 
                     }
                 }
             }
         }
         
+        // Alinhamento e escrita de blocos de controle na pilha/memória
         *(uint *)unaff_r4 = unaff_r4;
         *(int *)(unaff_r4 + 4) = unaff_r5;
         *(int **)(unaff_r4 + 8) = unaff_r6;
@@ -69,21 +84,19 @@ void FUN_00004d06(int param_1, int *param_2, int param_3)
         *(int *)(in_stack_000000c0 + 0xc) = unaff_r7;
         unaff_r4 = in_stack_000000c0;
         
-    } while( 1 );
+    } while (1);
 }
 
-extern int DAT_00005fb0;
-
-void halt_baddata(void) {
-    while(1);
-}
-
+/* ==========================================================================
+   FUNÇÃO: FUN_000057d6
+   DESCRIÇÃO: Interpretador bitwise de pacotes de dados
+   ========================================================================== */
 void FUN_000057d6(unsigned int param_1, unsigned int param_2, int param_3, int param_4, unsigned int param_5)
 {
     unsigned char uVar2;
     unsigned int uVar3;
     unsigned int *puVar4;
-    unsigned int extraout_r1 = 0;
+    unsigned int extraout_r1 = 0; 
     int iVar5;
     unsigned int uVar6;
     unsigned int uVar7;
@@ -138,7 +151,7 @@ void FUN_000057d6(unsigned int param_1, unsigned int param_2, int param_3, int p
         puVar10[4] = uVar12;
         puVar10[5] = uVar13;
         
-        while( 1 ) {
+        while (1) {
             *(unsigned int *)uVar3 = uVar3;
             *(unsigned int *)(uVar3 + 4) = uVar6;
             *(unsigned int *)(uVar3 + 8) = uVar7;
@@ -188,5 +201,5 @@ void FUN_000057d6(unsigned int param_1, unsigned int param_2, int param_3, int p
                 halt_baddata();
             }
         }
-    } while( 1 );
+    } while (1);
 }
