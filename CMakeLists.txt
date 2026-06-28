@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # Inclui os diretórios de cabeçalhos
 include_directories(include)
 
-# Lista os arquivos fonte (adicionamos os que você for criando)
+# Lista os arquivos fonte
 set(SOURCES 
     src/main.c
     src/core/entity_system.c
@@ -17,6 +17,9 @@ set(SOURCES
 
 # Adiciona o executável
 add_executable(OpenTS3-DS ${SOURCES})
+
+# Renomeia o executável de saída para OpenTS3DS
+set_target_properties(OpenTS3-DS PROPERTIES OUTPUT_NAME "OpenTS3DS")
 
 # Opcional: Adiciona flags de aviso para ajudar no debug do seu port
 if(MSVC)
