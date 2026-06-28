@@ -1,9 +1,12 @@
-# OpenTS3-DS
+# OpenTS3DS, also known as Open The Sims 3 DS
 
 An open-source reverse engineering and native PC port project for **The Sims 3 (Nintendo DS)**.
 
 ## About the Project
-The goal of **OpenTS3-DS** is to decompile the original Nintendo DS game code and reconstruct it as a modern, portable game engine. This project aims to preserve the original game logic while allowing it to run natively on PC, with support for higher resolutions, modern input methods, and improved performance.
+The goal of **Open The Sims 3 DS** is to decompile the original Nintendo DS game code and reconstruct it as a modern, portable game engine. This project aims to preserve the original game logic while allowing it to run natively on PC, with support for higher resolutions, modern input methods, and improved performance.
+
+## ⚠️ Important Notice: ROM Requirement
+**This project does not include the original game ROM.** To use OpenTS3DS, you must provide your own legally obtained copy of *The Sims 3 (Nintendo DS)*. The engine requires the original game data to function, as it is a porting and engine-reconstruction project, not a redistributed version of the game.
 
 ## Project Status
 - [x] Mapping of data structures (`entity.h`)
@@ -22,12 +25,19 @@ The goal of **OpenTS3-DS** is to decompile the original Nintendo DS game code an
 To build this project, you will need **CMake** and a C compiler (GCC, Clang, or MSVC).
 
 1. Clone the repository:
-   `git clone https://github.com/YOUR_USERNAME/OpenTS3-DS.git`
+   `git clone https://github.com/luispolis124/OpenTS3-DS.git`
 2. Create the build directory:
    `mkdir build && cd build`
 3. Configure and build:
    `cmake ..`
    `cmake --build .`
+
+## Contributing
+Contributions are welcome! If you are interested in reverse engineering, game engine development, or porting, feel free to submit a Pull Request. Please follow the existing code style.
+
+## Acknowledgements
+* Inspired by the community effort of projects like OpenRCT2 and OpenMW.
+* Special thanks to everyone involved in the preservation of Nintendo DS software.
 
 ## License
 This project is an educational reverse engineering effort. Please ensure you own a legitimate copy of the original game.
