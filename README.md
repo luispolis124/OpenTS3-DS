@@ -5,8 +5,10 @@ An open-source reverse engineering and native PC port project for **The Sims 3 (
 ## About the Project
 The goal of **Open The Sims 3 DS** is to decompile the original Nintendo DS game code and reconstruct it as a modern, portable game engine. This project aims to preserve the original game logic while allowing it to run natively on PC, with support for higher resolutions, modern input methods, and improved performance.
 
-## ⚠️ Important Notice: ROM Requirement
-**This project does not include the original game ROM.** To use OpenTS3DS, you must provide your own legally obtained copy of *The Sims 3 (Nintendo DS)*. The engine requires the original game data to function, as it is a porting and engine-reconstruction project, not a redistributed version of the game.
+## ⚠️ Important Notice: ROM & Region Requirement
+**This project does not include the original game ROM.** To use OpenTS3DS, you must provide your own legally obtained copy of *The Sims 3 (Nintendo DS)*. 
+
+**Note:** Currently, this project only supports the **North American (USA)** version of the game. Using ROMs from other regions will cause data mismatches and the engine will not function correctly.
 
 ## Project Status
 - [x] Mapping of data structures (`entity.h`)
