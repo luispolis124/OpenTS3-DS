@@ -1,17 +1,34 @@
 /* ==========================================================================
    PROJETO: OpenTS3-DS
-   ARQUIVO: main.c (Ponto Central do Código)
+   ARQUIVO: main.c
+   DESCRIÇÃO: Ponto de entrada que orquestra a inicialização dos sistemas.
    ========================================================================== */
 
-#include <nds.h> // Inclui as bibliotecas nativas de desenvolvimento do DS
-#include "data_stream.c" // Linka o arquivo de tratamento de dados que criamos
+#include <nds.h>
+#include "../include/entity.h" // Incluindo sua "bíblia" de estruturas
+
+// Inicialização dos sistemas que mapeamos
+void Engine_Init() {
+    Entity_System_Init();
+    // Aqui você pode adicionar outros sistemas que mapear no futuro
+    // (Ex: Input_Init(), Graphics_Init(), Audio_Init())
+}
 
 int main(void) {
-    // O ponto de entrada principal do código do jogo futuramente ficará aqui.
-    // Por enquanto, as funções descompiladas são declaradas e chamadas conforme necessário.
-    
+    // 1. Inicializa o hardware do NDS
+    consoleDemoInit(); 
+    Engine_Init();
+
+    // 2. Loop Principal (Game Loop)
     while(1) {
-        swiWaitForVBlank(); // Mantém o loop principal do hardware do DS estável
+        // A. Processar Entidades (Lógica de Spawn, Update e Destruição)
+        // Entity_UpdateAll(); 
+
+        // B. Renderização (Desenhar tudo na tela)
+        // Entity_RenderAll();
+
+        // C. Sincronização
+        swiWaitForVBlank(); 
     }
     
     return 0;
