@@ -3,6 +3,8 @@
    DESCRIÇÃO: Pipeline de Renderização - Escalonamento e Sincronização de VRAM
    ========================================================================== */
 
+#include "../include/pipeline_core.h"
+
 void FUN_00007f3e(undefined4 param_1, undefined4 param_2, uint param_3, int param_4)
 {
     uint uVar1;
