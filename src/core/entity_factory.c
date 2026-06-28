@@ -4,7 +4,7 @@
    ========================================================================== */
 
 // Função privada que realiza o trabalho pesado de escrita em memória
-static void Internal_RegisterEntity(int entity_id, uint base_param, int type_id)
+## static void Internal_RegisterEntity(int entity_id, uint base_param, int type_id)
 {
     // Mova aqui todo o bloco de código repetido que preenche:
     // puVar1[0xc], piVar4, puVar7, etc.
@@ -12,7 +12,7 @@ static void Internal_RegisterEntity(int entity_id, uint base_param, int type_id)
 }
 
 // Interfaces públicas que apenas preparam os dados e chamam o núcleo
-void FUN_000085ca(int param_1, undefined4 param_2, int param_3, uint param_4) 
+ ## void FUN_000085ca(int param_1, undefined4 param_2, int param_3, uint param_4) 
 {
     // A lógica única desta função está apenas no cálculo inicial dos offsets
     // Exemplo:
