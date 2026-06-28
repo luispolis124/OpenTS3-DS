@@ -2192,3 +2192,306 @@ void FUN_00007ed4(void)
     
     halt_baddata();
 }
+
+/* ==========================================================================
+   FUNÇÃO: FUN_00007ed6
+   DESCRIÇÃO: Variante de Consolidação de Stream (Diferença no offset unaff_r6[4])
+   ========================================================================== */
+
+void FUN_00007ed6(void)
+{
+    short extraout_var = 0;
+    int *piVar1;
+    unsigned int extraout_r1 = 0;
+    int extraout_r1_00 = 0, extraout_r1_01 = 0, extraout_r1_02 = 0;
+    char extraout_r1_03 = 0;
+    unsigned char extraout_r1_04 = 0;
+    int iVar2;
+    unsigned int uVar3;
+    unsigned int uVar5;
+    int iVar6, iVar8, iVar9;
+    unsigned long long uVar10;
+    
+    // Registradores e variáveis de pilha reconstruídos
+    int in_r3 = 0;
+    int unaff_r4 = 0;
+    unsigned int *puVar4;
+    unsigned int unaff_r5 = 0; // Nesta variante, tratado diretamente como valor
+    unsigned int *unaff_r6 = (unsigned int *)0;
+    int unaff_r7 = 0;
+    int in_lr = 0;
+    int in_stack_000003e4 = 0;
+    
+    iVar6 = 0x7ed9;
+    iVar2 = unaff_r7 + -7;
+    
+    // Salvamento do Frame de Contexto (Diferença sutil no índice 4)
+    *unaff_r6 = extraout_r1;
+    unaff_r6[1] = iVar2;
+    unaff_r6[2] = in_r3;
+    unaff_r6[3] = unaff_r4;
+    unaff_r6[4] = unaff_r5; // Diferencial mapeado pelo decompilador
+    unaff_r6[5] = (unsigned int)unaff_r6;
+    unaff_r6[6] = unaff_r7;
+    
+    unsigned char *puVar7 = (unsigned char *)&FUN_00007eec_1;
+    puVar4 = (unsigned int *)(unaff_r4 + 0xfe);
+    uVar5 = *puVar4;
+    iVar6 = *(int *)(unaff_r4 + 0x102);
+    
+    *(unsigned char *)(unaff_r4 + 0x107) = 0xfa;
+    *(int *)(unaff_r4 + 0x106) = (extraout_r1_00 + 0xfe) * 0x20;
+    *(int *)(unaff_r4 + 0x10a) = iVar2;
+    *(int *)(unaff_r4 + 0x10e) = iVar6;
+    
+    iVar8 = 0x7f13;
+    uVar10 = ((unsigned long long)iVar6 << 32) | (unaff_r4 + 0x112);
+    iVar2 = (int)(uVar10 >> 32);
+    
+    piVar1 = (int *)(iVar2 * 0x20);
+    *piVar1 = in_r3;
+    piVar1[1] = uVar5;
+    piVar1[2] = iVar6;
+    *(unsigned char *)((int)piVar1 + 0xd) = 0xfa;
+    piVar1[3] = iVar2;
+    piVar1[4] = (int)uVar10 >> 0x1c;
+    piVar1[5] = iVar6;
+    
+    iVar2 = 0x7f1f;
+    *(short *)((uVar5 >> 9) + 0x12) = extraout_var >> 0xc;
+    *(unsigned char *)(((unsigned int)puVar4 >> 1) + 1) = 0xfa;
+    
+    piVar1 = (int *)(uVar5 * 2);
+    *(unsigned char *)((int)piVar1 + 1) = 0xfa;
+    *piVar1 = extraout_r1_01 << 9;
+    piVar1[1] = (int)(((unsigned int)puVar4 >> 1) + 0xba) >> 0x18;
+    piVar1[2] = iVar6;
+    
+    uVar3 = ((unsigned int)piVar1 + 0xc6) >> 0x18;
+    iVar8 = 0x7f41;
+    in_r3 = in_r3 + -0xf9;
+    *(short *)(iVar6 + 0x1e) = (short)((unsigned int)puVar4 * 0x10);
+    
+    iVar8 = 0x7f55;
+    DAT_00000126 = (DAT_00000126 & 0xFFFF0000) | (unsigned short)uVar5;
+    iVar2 = extraout_r1_02;
+    
+    do {
+        iVar9 = 0x7f5d;
+        DAT_000000fd = extraout_r1_03 + '\b';
+        *(unsigned char *)(iVar6 + 0xf) = 0;
+        iVar2 = 0x7f6b;
+        iVar8 = 0x7f6f;
+        iVar9 = uVar3 + 0x48;
+        iVar2 = in_stack_000003e4 << 8;
+        uVar3 = uVar3 + 0x138;
+        DAT_00000119 = (unsigned char)uVar5;
+    } while (uVar3 != 0 && -0xf1 < iVar9);
+    
+    piVar1 = (int *)(iVar6 * 0x80000);
+    DAT_00000146 = in_r3 << 0x10;
+    *piVar1 = DAT_00000146;
+    piVar1[1] = uVar3 >> 0x1a | uVar3 * 0x40;
+    piVar1[2] = in_r3;
+    piVar1[3] = uVar5;
+    piVar1[4] = iVar6;
+    
+    DAT_00000048 = (DAT_00000048 & 0xFFFF0000);
+    iVar2 = (in_r3 + -0xe6) * 0x80;
+    *(char *)(in_r3 + -0xd7) = (char)iVar2;
+    
+    iVar6 = 0x7fc1;
+    FIQ = extraout_r1_04;
+    
+    halt_baddata();
+}
+
+/* ==========================================================================
+   FUNÇÃO: FUN_00007eec
+   DESCRIÇÃO: Despacho Parametrizado de Stream de IO (Interface Dinâmica)
+   ========================================================================== */
+
+void FUN_00007eec(unsigned int param_1, int param_2, unsigned int param_3, int param_4)
+{
+    short extraout_var = 0;
+    int *piVar1;
+    int extraout_r1 = 0;
+    int extraout_r1_00 = 0;
+    char extraout_r1_01 = 0;
+    unsigned char extraout_r1_02 = 0;
+    unsigned int uVar2;
+    unsigned int *puVar3;
+    unsigned int uVar4;
+    int iVar5, iVar6, iVar7, iVar8;
+    unsigned long long uVar9;
+    
+    // Recuperação do contexto de registradores locais
+    int unaff_r4 = 0;
+    int in_lr = 0;
+    int in_stack_000003e4 = 0;
+    
+    puVar3 = (unsigned int *)(unaff_r4 + 0xfe);
+    uVar4 = *puVar3;
+    iVar5 = *(int *)(unaff_r4 + 0x102);
+    
+    // Configuração do bloco de controle baseado nos parâmetros da chamada
+    *(unsigned char *)(unaff_r4 + 0x107) = 0xfa;
+    *(int *)(unaff_r4 + 0x106) = (param_2 + 0xfe) * 0x20;
+    *(unsigned int *)(unaff_r4 + 0x10a) = param_3;
+    *(int *)(unaff_r4 + 0x10e) = iVar5;
+    
+    iVar6 = 0x7f13;
+    uVar9 = ((unsigned long long)iVar5 << 32) | (unaff_r4 + 0x112);
+    iVar7 = (int)(uVar9 >> 32);
+    
+    piVar1 = (int *)(iVar7 * 0x20);
+    *piVar1 = param_4;
+    piVar1[1] = uVar4;
+    piVar1[2] = iVar5;
+    *(unsigned char *)((int)piVar1 + 0xd) = 0xfa;
+    piVar1[3] = iVar7;
+    piVar1[4] = (int)uVar9 >> 0x1c;
+    piVar1[5] = iVar5;
+    
+    iVar7 = 0x7f1f;
+    *(short *)((uVar4 >> 9) + 0x12) = extraout_var >> 0xc;
+    *(unsigned char *)(((unsigned int)puVar3 >> 1) + 1) = 0xfa;
+    
+    piVar1 = (int *)(uVar4 * 2);
+    *(unsigned char *)((int)piVar1 + 1) = 0xfa;
+    *piVar1 = extraout_r1 << 9;
+    piVar1[1] = (int)(((unsigned int)puVar3 >> 1) + 0xba) >> 0x18;
+    piVar1[2] = iVar5;
+    
+    uVar2 = ((unsigned int)piVar1 + 0xc6) >> 0x18;
+    iVar6 = 0x7f41;
+    param_4 = param_4 + -0xf9;
+    *(short *)(iVar5 + 0x1e) = (short)((unsigned int)puVar3 * 0x10);
+    
+    iVar6 = 0x7f55;
+    DAT_00000126 = (DAT_00000126 & 0xFFFF0000) | (unsigned short)uVar4;
+    iVar7 = extraout_r1_00;
+    
+    // Loop de sincronização de sincronismo do hardware
+    do {
+        iVar8 = 0x7f5d;
+        DAT_000000fd = extraout_r1_01 + '\b';
+        *(unsigned char *)(iVar5 + 0xf) = 0;
+        iVar7 = 0x7f6b;
+        iVar6 = 0x7f6f;
+        iVar8 = uVar2 + 0x48;
+        iVar7 = in_stack_000003e4 << 8;
+        uVar2 = uVar2 + 0x138;
+        DAT_00000119 = (unsigned char)uVar4;
+    } while (uVar2 != 0 && -0xf1 < iVar8);
+    
+    piVar1 = (int *)(iVar5 * 0x80000);
+    DAT_00000146 = param_4 << 0x10;
+    *piVar1 = DAT_00000146;
+    piVar1[1] = uVar2 >> 0x1a | uVar2 * 0x40;
+    piVar1[2] = param_4;
+    piVar1[3] = uVar4;
+    piVar1[4] = iVar5;
+    
+    DAT_00000048 = (DAT_00000048 & 0xFFFF0000);
+    iVar7 = (param_4 + -0xe6) * 0x80;
+    *(char *)(param_4 + -0xd7) = (char)iVar7;
+    
+    iVar5 = 0x7fc1;
+    FIQ = extraout_r1_02;
+    
+    halt_baddata();
+}
+
+void FUN_00007f0e(undefined4 *param_1,undefined4 param_2,undefined4 param_3,int param_4)
+
+{
+  undefined1 uVar1;
+  short extraout_var;
+  int *piVar2;
+  int extraout_r1;
+  int extraout_r1_00;
+  char extraout_r1_01;
+  undefined1 extraout_r1_02;
+  uint uVar3;
+  uint uVar4;
+  uint unaff_r4;
+  uint unaff_r5;
+  int unaff_r6;
+  uint unaff_r7;
+  int in_lr;
+  int iVar5;
+  int iVar6;
+  int iVar7;
+  undefined8 uVar8;
+  int in_stack_000003e4;
+  
+  *param_1 = param_2;
+  param_1[1] = param_3;
+  param_1[2] = unaff_r6;
+  iVar5 = 0x7f13;
+  uVar8 = (*(code *)(in_lr + 0x9ba))(param_1 + 3);
+  iVar6 = (int)((ulonglong)uVar8 >> 0x20);
+  piVar2 = (int *)(iVar6 * 0x20);
+  *piVar2 = param_4;
+  piVar2[1] = unaff_r5;
+  piVar2[2] = unaff_r6;
+  uVar1 = (undefined1)unaff_r7;
+  *(undefined1 *)((int)piVar2 + 0xd) = uVar1;
+  piVar2[3] = iVar6;
+  piVar2[4] = (int)uVar8 >> 0x1c;
+  piVar2[5] = unaff_r6;
+  iVar6 = 0x7f1f;
+  (*(code *)(iVar5 + 0x9ba))(piVar2 + 6);
+  *(short *)((unaff_r5 >> 9) + 0x12) = extraout_var >> 0xc;
+  *(undefined1 *)((unaff_r4 >> 1) + 1) = uVar1;
+  piVar2 = (int *)(unaff_r5 * 2);
+  *(undefined1 *)((int)piVar2 + 1) = uVar1;
+  *piVar2 = extraout_r1 << 9;
+  piVar2[1] = (int)((unaff_r4 >> 1) + 0xba) >> 0x18;
+  piVar2[2] = unaff_r6;
+  uVar3 = (int)piVar2 + 0xc6 >> 0x18;
+  iVar5 = 0x7f41;
+  (*(code *)(iVar6 + 0xdee))((int)piVar2 + 0x11);
+  param_4 = param_4 + -0xf9;
+  *(short *)(unaff_r6 + 0x1e) = (short)(unaff_r4 << 4);
+  (*(code *)(iVar5 + 0xfee))(unaff_r4 << 4,&stack0x000003f8);
+  iVar5 = 0x7f55;
+  (*(code *)&SUB_00207d3e)();
+  *(short *)(unaff_r7 + 0x2e) = (short)unaff_r5;
+  iVar6 = extraout_r1_00;
+  do {
+    iVar7 = 0x7f5d;
+    (*(code *)(iVar5 + 0xfee))(uVar3 << 0xb,iVar6);
+    *(undefined1 *)(unaff_r6 + 0xf) = 0;
+    *(char *)(unaff_r7 + 3) = extraout_r1_01 + '\b';
+    iVar6 = 0x7f6b;
+    (*(code *)(iVar7 + 0x9ee))(unaff_r6 << 7);
+    iVar5 = 0x7f6f;
+    (*(code *)(iVar6 + 0x9ee))();
+    iVar7 = uVar3 + 0x48;
+    iVar6 = in_stack_000003e4 << 8;
+    uVar3 = uVar3 + 0x138;
+    *(char *)(unaff_r7 + 0x1f) = (char)unaff_r5;
+  } while (uVar3 != 0 && -0xf1 < iVar7);
+  piVar2 = (int *)(unaff_r6 * 0x80000);
+  *piVar2 = param_4 << 0x10;
+  piVar2[1] = uVar3 >> (unaff_r7 & 0x1f) | uVar3 << 0x20 - (unaff_r7 & 0x1f);
+  piVar2[2] = param_4;
+  piVar2[3] = unaff_r5;
+  piVar2[4] = unaff_r6;
+  *(int *)(unaff_r7 + 0x4c) = param_4 << 0x10;
+  iVar7 = (unaff_r7 - 0xf0) + (param_4 - 0xf0U);
+  *(undefined2 *)(unaff_r7 - 0xb2) = 0;
+  uVar4 = unaff_r7 - 0xf3 & param_4 - 0xf0U;
+  iVar6 = iVar7 * 0x80;
+  uVar3 = unaff_r7 - 0xf0 & 0x1f;
+  *(char *)(iVar7 + 0xf) = (char)iVar6;
+  iVar7 = 0x7fc1;
+  (*(code *)(iVar5 + 0x9ee))
+            (iVar6,*(undefined4 *)(unaff_r7 - 0x74),uVar4 >> uVar3 | uVar4 << 0x20 - uVar3);
+  (*(code *)(iVar7 + 0x9ee))();
+  *(undefined1 *)(unaff_r7 - 0xd9) = extraout_r1_02;
+                    // WARNING: Bad instruction - Truncating control flow here
+  halt_baddata();
+}
