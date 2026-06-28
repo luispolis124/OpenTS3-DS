@@ -60,3 +60,24 @@ void Entity_UpdateAll() {
         }
     }
 }
+
+/* ==========================================================================
+   FUNÇÃO: Entity_Commit (Refatoração da FUN_00008612)
+   DESCRIÇÃO: Conclui o registro de uma entidade, ligando-a ao sistema
+   de atualização global e renderização.
+   ========================================================================== */
+void Entity_Commit(Entity* entity)
+{
+    // 1. Vincula a lógica de atualização (callbacks)
+    // No NDS, isso apontava para endereços estáticos como DAT_8918171c.
+    // No seu port, você apontará para funções C++ ou C definidas por você.
+    entity->update_func = &Global_Update_Callback;
+
+    // 2. Configura buffers de hardware (Substitui os acessos a 0x4000000)
+    // Aqui você atualizará o seu buffer de renderização (ex: OpenGL/DirectX/SDL).
+    
+    // 3. Ativa a entidade
+    entity->is_active = true;
+    
+    printf("Entidade comprometida (registrada) com sucesso.\n");
+}
