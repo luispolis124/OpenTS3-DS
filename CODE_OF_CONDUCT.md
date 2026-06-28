@@ -26,7 +26,7 @@ Examples of unacceptable behavior include:
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at: [SEU_EMAIL_OU_LINK_DE_CONTATO]
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at: [luisfelipovi@gmail.com]
 
 **⚠️ Important Security Notice:** This contact channel is exclusively for project-related issues and conduct reporting. Any attempts to use this contact information for unauthorized access, hacking, or account phishing attempts against the maintainers will be treated as a serious security violation and reported accordingly.
 
