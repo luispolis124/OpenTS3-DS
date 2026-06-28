@@ -1,24 +1,25 @@
 /* ==========================================================================
-   FUNÇÃO: Entity_CommonRegister
-   DESCRIÇÃO: Núcleo comum de registro de entidade. 
-   Evita a duplicação de código entre as variações 858c e 85a6.
+   MÓDULO: Entity Factory
+   DESCRIÇÃO: Sistema central de criação e registro de entidades.
    ========================================================================== */
-void Entity_CommonRegister(uint param_3, int offset_data, uint entity_id)
+
+// Função privada que realiza o trabalho pesado de escrita em memória
+static void Internal_RegisterEntity(int entity_id, uint base_param, int type_id)
 {
-    // Coloque aqui todo aquele bloco de escritas em memória que se repete 
-    // em todas as funções (o preenchimento da struct `puVar5` ou `puVar3`).
-    
-    // Agora, as funções 858c e 85a6 apenas calculam seus valores iniciais
-    // e chamam esta função para realizar o trabalho pesado.
+    // Mova aqui todo o bloco de código repetido que preenche:
+    // puVar1[0xc], piVar4, puVar7, etc.
+    // Isso é o registro real da entidade no sistema global de Sims 3 DS.
 }
 
-void FUN_000085a6(...)
+// Interfaces públicas que apenas preparam os dados e chamam o núcleo
+void FUN_000085ca(int param_1, undefined4 param_2, int param_3, uint param_4) 
 {
-    // Apenas a diferença específica do carregamento do uVar1
-    ushort uVar1 = *(ushort *)(param_3 + (param_4 >> 0xc));
+    // A lógica única desta função está apenas no cálculo inicial dos offsets
+    // Exemplo:
+    // int derived_offset = (param_1 * 0x200);
     
-    // Chama o núcleo comum
-    Entity_CommonRegister(param_3, ..., uVar1);
+    // Chama o núcleo comum de registro
+    Internal_RegisterEntity(param_1, param_4, param_2);
     
-    halt_baddata();
+    // halt_baddata(); // Removemos para evitar crash no port
 }
