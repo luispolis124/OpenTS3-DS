@@ -122,3 +122,47 @@ void Entity_SetAlignment(Entity* e, short value)
     // O 0x18 é uma constante de deslocamento do original
     e->alignment_index = value + 0x18; 
 }
+
+/* ==========================================================================
+   FUNÇÃO: Entity_InitContext
+   DESCRIÇÃO: Prepara os parâmetros para a inicialização da entidade.
+   ========================================================================== */
+void Entity_InitContext(Entity* entity, int param3, int param4)
+{
+    // Em vez de escrever em unaff_r7, você preenche a struct:
+    entity->x = (float)(param3 << 0xb); 
+    entity->y = (float)param3;
+    
+    // Isso garante que, quando o construtor for chamado, 
+    // os valores já estejam nos lugares corretos.
+}
+
+/* ==========================================================================
+   FUNÇÃO: Entity_Destroy
+   DESCRIÇÃO: Remove a entidade do mundo e libera o slot para reuso.
+   ========================================================================== */
+void Entity_Destroy(Entity* entity) 
+{
+    // 1. Notifica o sistema de renderização para parar de desenhar
+    // 2. Limpa os callbacks (update_logic = NULL)
+    // 3. Marca como inativo (is_active = false)
+    entity->is_active = false;
+    
+    printf("Entidade %d destruída e slot liberado.\n", entity->id);
+}
+
+/* ==========================================================================
+   FUNÇÃO: Entity_Destroy
+   DESCRIÇÃO: Destruição unificada (padrão ou forçada).
+   ========================================================================== */
+void Entity_Destroy(Entity* entity, bool is_forced) 
+{
+    if (is_forced) {
+        // Lógica de limpeza agressiva (similar à 8958)
+        printf("Limpeza forçada da entidade %d...\n", entity->id);
+    }
+    
+    // Liberação padrão
+    entity->is_active = false;
+    // ... liberar ponteiros ...
+}
