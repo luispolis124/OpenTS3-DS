@@ -31,3 +31,26 @@ void Entity_Init_Actor(int tipo, uint32_t valor_config, SimEntity* entity, int16
     
     printf("Sim %d criado no mundo!\n", valor_config);
 }
+
+// Em src/game/entity.c
+
+// Função original 85a6 (Sims/Actors)
+void Entity_Init_Sim(SimEntity* entity, int estado_base) {
+    entity->estado_atual = estado_base;
+    entity->estado_secundario = estado_base - 0x20;
+    // ... lógica de registro ...
+}
+
+// Função 85ca (Props/Cenário)
+void Entity_Init_Prop(SimEntity* entity, int estado_base) {
+    entity->estado_atual = estado_base - 0x20;
+    entity->estado_secundario = estado_base - 0x40;
+    // ... lógica de registro ...
+}
+
+// Função 85ee (Triggers/Lógica do Lote)
+void Entity_Init_Trigger(SimEntity* entity, int estado_base) {
+    entity->estado_atual = estado_base;
+    entity->estado_secundario = estado_base - 0x20;
+    // ... lógica de trigger ...
+}
