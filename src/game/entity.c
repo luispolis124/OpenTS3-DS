@@ -1,5 +1,6 @@
 #include "../../include/game/entity_structs.h"
 #include <stdio.h>
+#include <stdint.h>
 
 /**
  * Entity_Init_Sim (Baseado em 85a6)
@@ -47,11 +48,25 @@ void Entity_Init_Trigger(SimEntity* entity, int16_t estado_base) {
 void Entity_Update_State(SimEntity* entity, int16_t novo_param, int16_t sub_param) {
     if (entity == NULL) return;
 
-    // Atualiza o estado principal
     entity->estado_atual = novo_param;
-    
-    // Opcional: registrar em logs que a entidade mudou de comportamento
     printf("[Update] Entidade atualizada: Param=%d, SubParam=%d\n", novo_param, sub_param);
+}
+
+/**
+ * Entity_Send_Event (Baseado em 86e0)
+ * Empacota dados de um evento para serem processados pelo motor.
+ */
+void Entity_Send_Event(uint32_t* buffer, uint32_t tipo_evento, uint32_t valor_evento, uint32_t dados_extras) {
+    if (buffer == NULL) return;
+
+    buffer[0] = tipo_evento;
+    buffer[1] = valor_evento;
+    buffer[2] = dados_extras;
+
+    // Marcador de evento ativo no segundo byte
+    ((char*)buffer)[1] = 0x01; 
+
+    printf("[Event] Evento enviado: Tipo=%u, Valor=%u\n", tipo_evento, valor_evento);
 }
 
 /**
@@ -63,7 +78,7 @@ void Entity_Destroy(SimEntity* entity) {
     
     entity->estado_atual = 0;
     entity->estado_secundario = 0;
-    entity->entity_data = NULL; // Limpa o ponteiro de dados
+    entity->entity_data = NULL;
     
     printf("[Destroy] Entidade liberada da memória.\n");
 }
