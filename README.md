@@ -2,6 +2,8 @@
 
 An open-source reverse engineering and native PC port project for **The Sims 3 (Nintendo DS)**.
 
+> **Disclaimer:** OpenTS3DS is an independent, community-driven project and is **not affiliated with, endorsed by, or connected to Electronic Arts (EA), Nintendo, or any of their subsidiaries.** "The Sims" is a registered trademark of Electronic Arts Inc. All other trademarks are the property of their respective owners.
+
 ## About the Project
 The goal of **Open The Sims 3 DS** is to decompile the original Nintendo DS game code and reconstruct it as a modern, portable game engine. This project aims to preserve the original game logic while allowing it to run natively on PC, with support for higher resolutions, modern input methods, and improved performance.
 
@@ -36,6 +38,12 @@ To build this project, you will need **CMake** and a C compiler (GCC, Clang, or 
 
 ## Contributing
 Contributions are welcome! If you are interested in reverse engineering, game engine development, or porting, feel free to submit a Pull Request. Please follow the existing code style.
+
+## Technologies & Credits
+This project utilizes the following open-source libraries:
+* **[SDL2](https://www.libsdl.org/):** Window management and input handling (zlib License).
+* **[SDL_mixer](https://www.libsdl.org/projects/SDL_mixer/):** Multi-channel audio mixing (zlib License).
+* **[OpenGL](https://www.opengl.org/):** Hardware-accelerated 3D rendering.
 
 ## Acknowledgements
 * Inspired by the community effort of projects like OpenRCT2 and OpenMW.
