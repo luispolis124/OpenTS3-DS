@@ -41,6 +41,20 @@ void Entity_Init_Trigger(SimEntity* entity, int16_t estado_base) {
 }
 
 /**
+ * Entity_Update_State (Baseado em 8694)
+ * Ajusta parâmetros internos e registra a entidade no sistema de processamento.
+ */
+void Entity_Update_State(SimEntity* entity, int16_t novo_param, int16_t sub_param) {
+    if (entity == NULL) return;
+
+    // Atualiza o estado principal
+    entity->estado_atual = novo_param;
+    
+    // Opcional: registrar em logs que a entidade mudou de comportamento
+    printf("[Update] Entidade atualizada: Param=%d, SubParam=%d\n", novo_param, sub_param);
+}
+
+/**
  * Entity_Destroy (Baseado em 8612)
  * Limpeza de memória e finalização de ciclo de vida.
  */
