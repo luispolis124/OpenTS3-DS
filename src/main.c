@@ -1,10 +1,11 @@
 /* ==========================================================================
-   PROJETO: OpenTS3-DS
-   DESCRIÇÃO: Orquestração do Game Loop com verificação de segurança.
+   PROJETO: OpenTS3-DS (Portado para x64)
+   DESCRIÇÃO: Orquestração do Game Loop adaptada para ambiente Windows/PC.
    ========================================================================== */
 
-#include <nds.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <unistd.h> // Para usleep()
 #include "../include/game/entity_structs.h"
 #include "../include/game/entity.h"
 
@@ -13,8 +14,7 @@ SimEntity g_SimPrincipal;
 bool g_EngineRunning = false;
 
 void Engine_Init() {
-    consoleDemoInit();
-    printf("OpenTS3-DS: Iniciando subsistemas...\n");
+    printf("OpenTS3-DS: Motor iniciado no modo PC (x64).\n");
     g_EngineRunning = true;
 }
 
@@ -43,15 +43,15 @@ int main(void) {
                 Entity_Send_Event(buffer_evento, 0xA1, 999, 10);
             }
 
-            // C. Serialização periódica (exemplo: salvar estado a cada 100 frames)
+            // C. Serialização periódica
             if (frames == 100) {
                 Entity_Serialize(&g_SimPrincipal, buffer_serialize);
                 printf("[Main] Estado persistido no buffer.\n");
             }
         }
 
-        // Sincronização de hardware
-        swiWaitForVBlank();
+        // Sincronização: Substituindo swiWaitForVBlank por ~60 FPS
+        usleep(16666); 
         frames++;
     }
 
