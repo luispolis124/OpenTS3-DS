@@ -1,50 +1,64 @@
 /* ==========================================================================
    PROJETO: OpenTS3-DS
-   DESCRIÇÃO: Orquestração do Game Loop e Ciclo de Vida de Entidades.
+   DESCRIÇÃO: Orquestração do Game Loop com verificação de segurança.
    ========================================================================== */
 
 #include <nds.h>
 #include <stdio.h>
 #include "../include/game/entity_structs.h"
-#include "../include/game/entity.h" // Assumindo que você criou este header
+#include "../include/game/entity.h"
 
-// Variáveis Globais de Estado
+// Variável Global de Estado
 SimEntity g_SimPrincipal;
+bool g_EngineRunning = false;
 
 void Engine_Init() {
     consoleDemoInit();
-    printf("OpenTS3-DS: Motor inicializado.\n");
+    printf("OpenTS3-DS: Iniciando subsistemas...\n");
+    g_EngineRunning = true;
 }
 
 int main(void) {
-    // 1. Inicialização
     Engine_Init();
+    
     uint32_t buffer_evento[3];
+    uint32_t buffer_serialize[3];
 
-    // 2. Spawn da Entidade
-    printf("Simulando nascimento...\n");
+    // 1. Spawn da Entidade
+    printf("Spawning Sim...\n");
     Entity_Init_Sim(&g_SimPrincipal, 100);
 
-    // 3. Game Loop Principal
+    // 2. Loop Principal
     int frames = 0;
-    while(frames < 100) { // Simulação curta para teste
+    while(g_EngineRunning && frames < 200) {
         
-        // A. Update lógico
-        Entity_Update_State(&g_SimPrincipal, 150 + frames, 0);
-        
-        // B. Envio de evento ocasional
-        if (frames == 50) {
-            Entity_Send_Event(buffer_evento, 1, 999, 0);
+        // Verificação de segurança: Entidade está ativa?
+        if (g_SimPrincipal.estado_atual != 0) {
+            
+            // A. Update lógico
+            Entity_Update_State(&g_SimPrincipal, 150 + (frames % 50), 1);
+            
+            // B. Envio de evento condicional
+            if (frames == 50) {
+                Entity_Send_Event(buffer_evento, 0xA1, 999, 10);
+            }
+
+            // C. Serialização periódica (exemplo: salvar estado a cada 100 frames)
+            if (frames == 100) {
+                Entity_Serialize(&g_SimPrincipal, buffer_serialize);
+                printf("[Main] Estado persistido no buffer.\n");
+            }
         }
 
-        // C. Renderização e Sincronização
+        // Sincronização de hardware
         swiWaitForVBlank();
         frames++;
     }
 
-    // 4. Finalização (Cleanup)
-    printf("Encerrando ciclo de vida...\n");
+    // 3. Finalização Segura
+    printf("Shutdown: Limpando memória...\n");
     Entity_Destroy(&g_SimPrincipal);
+    g_EngineRunning = false;
     
     printf("Motor parado com sucesso.\n");
     return 0;
