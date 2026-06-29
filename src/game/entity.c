@@ -1,56 +1,55 @@
-// Arquivo: src/game/entity.c
 #include "../../include/game/entity_structs.h"
 #include <stdio.h>
 
 /**
- * Entity_Init_Prop: Inicializa um objeto estático no mundo.
- * O 'unaff_r6' que você via no Ghidra provavelmente era um parâmetro 
- * de estado base. Vamos chamá-lo de 'estado_base'.
+ * Entity_Init_Sim (Baseado em 85a6)
+ * Inicializa Sims ou Entidades complexas (Actors).
  */
-void Entity_Init_Prop(int tipo, uint32_t valor_config, SimEntity* entity, int16_t estado_base) {
+void Entity_Init_Sim(SimEntity* entity, int16_t estado_base) {
     if (entity == NULL) return;
-
-    // Inicialização da estrutura mapeada
-    entity->id_base = (int16_t)valor_config;
     
-    // Aplicando os offsets que vimos no Ghidra
-    entity->estado_atual = estado_base - 0x20;
-    entity->estado_secundario = estado_base - 0x40;
-
-    // Log para você acompanhar no terminal durante o desenvolvimento
-    printf("Entidade %d inicializada com estado base: %d\n", valor_config, estado_base);
+    entity->estado_atual = estado_base;
+    entity->estado_secundario = estado_base - 0x20;
+    
+    printf("[Init] Sim/Actor inicializado (Estado: %d)\n", estado_base);
 }
 
 /**
- * Entity_Init_Actor: Poderia ser uma variação para Sims (Actors)
+ * Entity_Init_Prop (Baseado em 85ca)
+ * Inicializa objetos do cenário (cadeiras, mesas, etc).
  */
-void Entity_Init_Actor(int tipo, uint32_t valor_config, SimEntity* entity, int16_t estado_base) {
-    // Aqui a lógica pode diferir de um objeto para um Sim
-    entity->id_base = (int16_t)valor_config;
-    entity->estado_atual = estado_base; // Sims podem ter estados diferentes
+void Entity_Init_Prop(SimEntity* entity, int16_t estado_base) {
+    if (entity == NULL) return;
     
-    printf("Sim %d criado no mundo!\n", valor_config);
-}
-
-// Em src/game/entity.c
-
-// Função original 85a6 (Sims/Actors)
-void Entity_Init_Sim(SimEntity* entity, int estado_base) {
-    entity->estado_atual = estado_base;
-    entity->estado_secundario = estado_base - 0x20;
-    // ... lógica de registro ...
-}
-
-// Função 85ca (Props/Cenário)
-void Entity_Init_Prop(SimEntity* entity, int estado_base) {
     entity->estado_atual = estado_base - 0x20;
     entity->estado_secundario = estado_base - 0x40;
-    // ... lógica de registro ...
+    
+    printf("[Init] Objeto/Prop inicializado (Estado: %d)\n", estado_base);
 }
 
-// Função 85ee (Triggers/Lógica do Lote)
-void Entity_Init_Trigger(SimEntity* entity, int estado_base) {
+/**
+ * Entity_Init_Trigger (Baseado em 85ee)
+ * Inicializa gatilhos ou zonas lógicas do jogo.
+ */
+void Entity_Init_Trigger(SimEntity* entity, int16_t estado_base) {
+    if (entity == NULL) return;
+    
     entity->estado_atual = estado_base;
     entity->estado_secundario = estado_base - 0x20;
-    // ... lógica de trigger ...
+    
+    printf("[Init] Trigger inicializado (Estado: %d)\n", estado_base);
+}
+
+/**
+ * Entity_Destroy (Baseado em 8612)
+ * Limpeza de memória e finalização de ciclo de vida.
+ */
+void Entity_Destroy(SimEntity* entity) {
+    if (entity == NULL) return;
+    
+    entity->estado_atual = 0;
+    entity->estado_secundario = 0;
+    entity->entity_data = NULL; // Limpa o ponteiro de dados
+    
+    printf("[Destroy] Entidade liberada da memória.\n");
 }
