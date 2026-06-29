@@ -10,15 +10,16 @@ if not exist build (
     mkdir build
 )
 
-:: Compila o código fonte diretamente
-:: Ajuste 'src/*.c' para os arquivos que você quiser incluir
+:: Compila todos os arquivos .c dentro das pastas src e subpastas
+:: -Iinclude: aponta para a pasta de headers
+:: -lSDL2 -lSDL2_mixer: linka as bibliotecas necessárias
 echo Compilando com GCC...
-gcc src/*.c -Iinclude -o build/OpenTS3DS.exe -O3 -Wall
+gcc src/*.c src/core/*.c src/engine/*.c src/game/*.c -Iinclude -o build/OpenTS3DS.exe -O3 -Wall -lSDL2 -lSDL2_mixer
 
 :: Verifica se houve erro na compilação
 if %errorlevel% neq 0 (
     echo.
-    echo [ERRO] A compilacao falhou! Verifique seu codigo.
+    echo [ERRO] A compilacao falhou! Verifique seu codigo e as libs do SDL2.
     pause
     exit /b
 )
