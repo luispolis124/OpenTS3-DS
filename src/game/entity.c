@@ -50,16 +50,11 @@ void Entity_Update_State(SimEntity* entity, int16_t novo_param, int16_t sub_para
 
 /**
  * Entity_Set_Param (Baseado em 86fc)
- * Configura um parâmetro interno específico da entidade.
  */
 void Entity_Set_Param(SimEntity* entity, int16_t valor) {
     if (entity == NULL) return;
 
-    // A lógica original soma 0x18 e armazena no offset 10.
-    // DICA: Adicione um campo 'int16_t config_param' no offset 10 da sua struct SimEntity
-    // para não precisar usar cast de ponteiro aqui.
     *(int16_t*)((char*)entity + 10) = (int16_t)(valor + 0x18);
-    
     printf("[Config] Parâmetro configurado com valor ajustado: %d\n", valor + 0x18);
 }
 
@@ -67,7 +62,7 @@ void Entity_Set_Param(SimEntity* entity, int16_t valor) {
  * Entity_Send_Event (Baseado em 86e0)
  */
 void Entity_Send_Event(uint32_t* buffer, uint32_t tipo_evento, uint32_t valor_evento, uint32_t dados_extras) {
-    if (buffer == NULL) return;
+    if (buffer == NULL || buffer == NULL) return;
 
     buffer[0] = tipo_evento;
     buffer[1] = valor_evento;
@@ -76,6 +71,20 @@ void Entity_Send_Event(uint32_t* buffer, uint32_t tipo_evento, uint32_t valor_ev
     ((char*)buffer)[1] = 0x01; 
 
     printf("[Event] Evento enviado: Tipo=%u, Valor=%u\n", tipo_evento, valor_evento);
+}
+
+/**
+ * Entity_Serialize (Baseado em 88fc)
+ * Exporta o estado atual da entidade para um buffer de memória.
+ */
+void Entity_Serialize(SimEntity* entity, uint32_t* buffer) {
+    if (entity == NULL || buffer == NULL) return;
+
+    buffer[0] = (uint32_t)entity->estado_atual;
+    buffer[1] = (uint32_t)entity->estado_secundario;
+    buffer[2] = (uint32_t)entity->id_base;
+    
+    printf("[Serialize] Estado da entidade exportado para buffer.\n");
 }
 
 /**
