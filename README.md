@@ -37,6 +37,8 @@ This project utilizes the following open-source libraries:
  * **SDL2:** Window management and input handling (zlib License).
  * **SDL_mixer:** Multi-channel audio mixing (zlib License).
  * **OpenGL:** Hardware-accelerated 3D rendering.
+## AI-Assisted Development
+The code structures, documentation, and conversion assistance for this project were generated or refined with the support of Artificial Intelligence tools. All AI-generated outputs have been verified and integrated by the project maintainer to ensure accuracy and project standards.
 ## Acknowledgements
  * Inspired by the community effort of projects like OpenRCT2 and OpenMW.
  * Special thanks to everyone involved in the preservation of Nintendo DS software.
