@@ -1,55 +1,64 @@
 #include "raylib.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <pthread.h> // Necessário para Threading
 #include "../include/game/entity_structs.h"
 #include "../include/game/entity.h"
 
-// Variável Global
+// Variáveis Globais de Estado
 SimEntity g_SimPrincipal;
+bool g_rom_loaded = false;
+char* g_rom_path = "../rom/Sims3.nds"; // Caminho exemplo
+
+// Função que roda o Emulador em segundo plano
+void* Emulator_Thread_Func(void* arg) {
+    printf("[Emulator] Thread iniciada...\n");
+    // Emulator_Init(); 
+    // Emulator_LoadROM(g_rom_path);
+    while (g_rom_loaded) {
+        // Emulator_RunFrame();
+    }
+    return NULL;
+}
 
 int main(void) {
-    // 1. Inicialização da Janela e Motor
-    InitWindow(800, 600, "OpenTS3-DS - Visual");
-    SetTargetFPS(60); // Define o tempo de frame automaticamente
-    
-    printf("OpenTS3-DS: Motor iniciado com Raylib.\n");
+    InitWindow(800, 600, "OpenTS3-DS - Emulador Integrado");
+    SetTargetFPS(60);
+
+    pthread_t emu_thread;
     Entity_Init_Sim(&g_SimPrincipal, 100);
 
-    uint32_t buffer_evento[3];
-    uint32_t buffer_serialize[3];
-    int frames = 0;
-
-    // 2. Loop Principal (Substitui o while antigo)
     while (!WindowShouldClose()) {
-        
-        // A. Lógica (Seu motor)
-        if (g_SimPrincipal.estado_atual != 0) {
-            Entity_Update_State(&g_SimPrincipal, 150 + (frames % 50), 1);
-            
-            if (frames == 50) Entity_Send_Event(buffer_evento, 0xA1, 999, 10);
-            if (frames == 100) Entity_Serialize(&g_SimPrincipal, buffer_serialize);
+        // 1. Sistema de Input (Importação)
+        if (!g_rom_loaded && IsKeyPressed(KEY_I)) {
+            g_rom_loaded = true;
+            pthread_create(&emu_thread, NULL, Emulator_Thread_Func, NULL);
+            printf("[Main] Emulador iniciado via Thread.\n");
         }
 
-        // B. Renderização
+        // 2. Renderização
         BeginDrawing();
             ClearBackground(RAYWHITE);
-            
-            // Exemplo visual do estado da entidade
-            DrawText("OpenTS3-DS Engine", 20, 20, 20, DARKGRAY);
-            DrawText(TextFormat("Sim Estado: %d", g_SimPrincipal.estado_atual), 20, 50, 20, MAROON);
-            
-            if (frames > 100) {
-                DrawText("Sim Serializado!", 20, 80, 20, GREEN);
-            }
-        EndDrawing();
 
-        frames++;
+            if (!g_rom_loaded) {
+                DrawText("Pressione 'I' para importar a ROM do The Sims 3", 200, 300, 20, GRAY);
+            } else {
+                // Aqui você desenharia a textura vinda do emulador:
+                // DrawTexture(emulator_frame_texture, 0, 0, WHITE);
+                DrawText("Emulando The Sims 3...", 20, 20, 20, BLUE);
+            }
+
+            DrawText(TextFormat("Sim Estado: %d", g_SimPrincipal.estado_atual), 20, 550, 20, MAROON);
+        EndDrawing();
     }
 
-    // 3. Finalização
+    // 3. Cleanup
+    if (g_rom_loaded) {
+        g_rom_loaded = false;
+        pthread_join(emu_thread, NULL);
+    }
+    
     Entity_Destroy(&g_SimPrincipal);
     CloseWindow();
-    
-    printf("Motor parado com sucesso.\n");
     return 0;
 }
