@@ -8,8 +8,8 @@ The goal of **Open The Sims 3 DS** is to decompile the original Nintendo DS game
 **This project does not include the original game ROM.** To use OpenTS3DS, you must provide your own legally obtained copy of *The Sims 3 (Nintendo DS)*.
 **Note:** Currently, this project only supports the **North American (USA)** version of the game. Using ROMs from other regions will cause data mismatches and the engine will not function correctly.
 ## Project Status
- * [x] Mapping of data structures (entity.h)
- * [x] Engine architecture and build pipeline (CMake)
+ * [ ] Mapping of data structures (entity.h)
+ * [ ] Engine architecture and build pipeline (CMake)
  * [ ] Implementation of the Entity System
  * [ ] Implementation of the Renderer
  * [ ] PC Portability (Windows/Linux)
