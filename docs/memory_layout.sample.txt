@@ -1,0 +1,28 @@
+ROM: SIMS3 [VS3E]  md5=7cdf32d02eeeff592a0a4ab6bec7b5c1
+     sha1=623dea494449e3f60ace691dfbf4f7fd285950f6  referência: True
+
+== ARM9 ==  ROM@0x4000  entry=0x02004800  load=0x02004000  size=0x17c6c0
+   Secure Area: descriptografada
+   ModuleParams @ 0x02004FB0  SDK=0x5047531  bss estático 0x0217CAE0..0x022503A0
+   segmento      RAM          tamanho   bss     arq.off   tipo
+   secure        0x02004000   0x800     0x0     0x0       data
+   main          0x02004800   0x1782e0  0xd38c0 0x800     code
+   itcm          0x01FF8000   0x3ac0    0x20    0x178ae0  code
+   dtcm          0x02FE0000   0x100     0xe00   0x17c5a0  data
+   autoload_list 0x021806A0   0x20      0x0     0x17c6a0  data
+
+== ARM7 ==  ROM@0x1b6a00  entry=0x02380000  load=0x02380000  size=0x2909c
+   ModuleParams @ 0x023805D4  SDK=0x5047531  bss estático 0x02380644..0x02380644
+   segmento      RAM          tamanho   bss     arq.off   tipo
+   main          0x02380000   0x644     0x0     0x0       code
+   wram          0x037F8000   0x1152c   0x2954  0x644     code
+   autoload1     0x02FE0000   0x1750c   0x28f8  0x11b70   code
+   autoload_list 0x023A907C   0x20      0x0     0x2907c   data
+
+== Overlays ARM9 ==
+   ov0   RAM=0x022503A0 size=0xea60 bss=0x20 file_id=0 comprimido=False autenticado=True
+   ov1   RAM=0x0225EE20 size=0x257a0 bss=0x0 file_id=1 comprimido=False autenticado=True
+   ov2   RAM=0x0225EE20 size=0x1be0 bss=0x20 file_id=2 comprimido=False autenticado=True
+
+== ARM9I (DSi) == ROM@0x7b83000 load=0x02400000 size=0x2c74 criptografado=True
+== ARM7I (DSi) == ROM@0x7b87000 load=0x02E80000 size=0x471a4 criptografado=False
