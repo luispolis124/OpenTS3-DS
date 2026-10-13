@@ -8,7 +8,7 @@ typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
-// Protótipos das funções auxiliares chamadas pelas rotinas de inicialización
+// Protótipos das funções auxiliares chamadas pelas rotinas de inicialização
 void fcn_02380508(u32 src, u32 dest, u32 size);
 void fcn_02380554(u32 arg0, u32 arg1);
 s32  fcn_023803dc(void);
@@ -167,5 +167,47 @@ void fcn_02380278(void) {
             }
             bc_ptr[0] = bc_ip;
         }
+    }
+}
+
+/*
+ * fcn_02380364 - Verificações de Status e Cópia de Blocos de Memória do ARM7
+ */
+void fcn_02380364(void) {
+    // 1. Acesso ao ponteiro base da estrutura de controle (armazenado em 0x023803CC)
+    volatile u32* struct_base = *(volatile u32**)0x023803CC;
+    
+    // 2. Leitura do registrador de status (offset 0x234) e teste de bit (tst r0, 4)
+    u32 status_val = struct_base[0x234 / 4];
+    if ((status_val & 4) != 0) {
+        // Se o bit 2 estiver setado, retorna imediatamente
+        return;
+    }
+
+    // 3. Primeira verificação e cópia condicional (offset 0x1DC)
+    u32 check_1dc = struct_base[0x1DC / 4];
+    if (check_1dc != 0) {
+        u32 src_addr = struct_base[0x1D8 / 4];
+        
+        // Acesso ao ponteiro base aav.0x023805b0
+        volatile u32* ptr_5b0 = *(volatile u32**)0x023805B0;
+        u32 base_dest = *ptr_5b0;
+        
+        u32 dest_addr = base_dest - 0x4000;
+        
+        fcn_02380508(src_addr, dest_addr, 0);
+    }
+
+    // 4. Segunda verificação e cópia condicional (offset 0x1CC)
+    u32 check_1cc = struct_base[0x1CC / 4];
+    if (check_1cc != 0) {
+        u32 src_addr2 = struct_base[0x1C8 / 4];
+        
+        volatile u32* ptr_5b0 = *(volatile u32**)0x023805B0;
+        u32 base_dest = *ptr_5b0;
+        
+        u32 dest_addr2 = base_dest - 0x4000 - 0x4000;
+        
+        fcn_02380508(src_addr2, dest_addr2, 0);
     }
 }
