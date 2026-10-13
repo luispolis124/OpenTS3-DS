@@ -8,6 +8,10 @@ typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
+// Protótipos das funções auxiliares chamadas pelas rotinas de inicialização
+void fcn_02380508(u32 src, u32 dest, u32 size);
+void fcn_02380554(u32 arg0, u32 arg1);
+
 /*
  * fcn_0238018c - Configuração Completa de Registradores de Hardware e Estruturas do ARM7
  */
@@ -81,4 +85,52 @@ void fcn_0238018c(void) {
     u32 base_val = *ptr_base;
     base_val = base_val & ~0x80000000;
     *ptr_base = base_val;
+}
+
+/*
+ * fcn_02380278 - Processamento de Tabelas e Inicialização de Blocos do ARM7
+ */
+void fcn_02380278(void) {
+    // 1. Acesso à estrutura base de controle (aav.0x023805d4)
+    volatile u32** struct_base_ptr = *(volatile u32***)0x023805D4;
+    u32* struct_ptr = (u32*)struct_base_ptr;
+
+    u32 ip = struct_ptr[0];       // Ponteiro atual (offset 0)
+    u32 limit = struct_ptr[1];     // Limite final (offset 4)
+    u32 r1_val = struct_ptr[2];    // Acumulador/Base (offset 8)
+
+    // 2. Loop de varredura e processamento de blocos
+    while ((s32)ip < (s32)limit) {
+        // Leitura de r0 com pós-incremento de 4 bytes (ldr r0, [ip], 4)
+        u32 r0 = *(u32*)ip;
+        ip += 4;
+
+        u32 special_val = *(u32*)0x02380358;
+        if (r0 == special_val) {
+            // Se for igual ao valor especial, avança o ponteiro em 0xC (12 bytes) e ajusta r1
+            u32 r2_skip = *(u32*)ip;
+            ip += 12;
+            r1_val += r2_skip;
+            continue;
+        }
+
+        // Leitura do próximo argumento e chamada de fcn_02380508
+        u32 arg_second = *(u32*)ip;
+        ip += 4;
+        
+        fcn_02380508(r0, arg_second, 4);
+
+        // Leitura dos próximos ponteiros para a rotina de preenchimento
+        u32 arg_third = *(u32*)ip;
+        ip += 4;
+        
+        u32 arg_fourth = *(u32*)ip;
+        ip += 4;
+
+        fcn_02380554(arg_third, arg_fourth);
+    }
+
+    // Atualiza de volta os ponteiros na estrutura
+    struct_ptr[0] = ip;
+    struct_ptr[2] = r1_val;
 }
