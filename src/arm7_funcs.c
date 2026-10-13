@@ -1,5 +1,6 @@
 /*
- * fcn_0238018c - Configuração de Registradores de Hardware do ARM7
+ * arm7_funcs.c - Sub-rotinas auxiliares e de configuração de hardware do ARM7
+ * Projeto: The Sims 3 (Nintendo DS)
  */
 
 typedef int s32;
@@ -7,6 +8,9 @@ typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
+/*
+ * fcn_0238018c - Configuração Completa de Registradores de Hardware e Estruturas do ARM7
+ */
 void fcn_0238018c(void) {
     // 1. Leitura inicial do registrador base de controle
     volatile u32* ptr_base = *(volatile u32**)0x02380258;
@@ -14,8 +18,7 @@ void fcn_0238018c(void) {
     
     // Teste de bit (tst r0, #-80000000 equivale a testar o bit mais significativo / sinal)
     if ((val & 0x80000000) == 0) {
-        // Se o bit não estiver setado, desvia para o fim (0x2380254)
-        // (Aqui entrará o restante da função que veremos a seguir)
+        // Se o bit não estiver setado, encerra a rotina (desvia para o fim / bx lr)
         return;
     }
     
@@ -30,23 +33,52 @@ void fcn_0238018c(void) {
     val = *ptr_base | 0x00010000;
     *ptr_base = val;
     
-    // 3. Salvamento de estado em ponteiros de destino
+    // 3. Salvamento de estado em ponteiros de destino (offset +4)
     volatile u32* dest_ptr = *(volatile u32**)0x02380264;
-    dest_ptr[1] = val; // str r0, [r2, 4] (equivalente ao offset de 4 bytes)
+    dest_ptr[1] = val; // str r0, [r2, 4]
     
     // 4. Operações de manipulação de bytes (ldrb / and / orr com deslocamentos)
     volatile u8* src_b1 = *(volatile u8**)0x02380268;
-    u8 b1 = *src_b1;
+    u8 val_r0 = *src_b1;
     
     volatile u8* src_b2 = *(volatile u8**)0x0238026C;
-    u8 b2 = *src_b2;
-    
-    u32 combined = b1 | ((b2 & 0x03) << 2);
+    u8 val_r1 = *src_b2;
+    u32 ip = val_r1 & 3;
+    val_r0 = val_r0 | (ip << 2);
     
     volatile u8* src_b3 = *(volatile u8**)0x02380270;
-    u8 b3 = *src_b3;
+    val_r1 = *src_b3;
+    ip = val_r1 & 6;
+    val_r0 = val_r0 | (ip << 4);
+
+    volatile u8* ctrl_b = *(volatile u8**)0x0238025C;
+    val_r1 = *ctrl_b;
+    ip = val_r1 & 1;
+    val_r0 = val_r0 | (ip << 7);
     
-    combined = combined | ((b3 & 0x06) << 4);
+    // Recuperação da estrutura de destino e gravação no offset +8 (strb r0, [r2, 8])
+    volatile u8* dest_struct = (volatile u8*)dest_ptr;
+    dest_struct[8] = val_r0;
     
-    // (A continuação desta função processa mais registradores logo abaixo...)
+    // 5. Processamento de halfwords (16 bits) para o offset +9
+    volatile u16* src_h1 = *(volatile u16**)0x02380274;
+    u16 half_r0 = *src_h1;
+    ip = half_r0 & 0x100;
+    half_r0 = half_r0 | (ip >> 6);
+
+    volatile u16* src_h2 = *(volatile u16**)0x02380260;
+    u16 half_r1 = *src_h2;
+    ip = half_r1 & 7;
+    half_r0 = half_r0 | (ip << 3);
+
+    ip = half_r1 & 0x180;
+    half_r0 = half_r0 | (ip >> 1);
+
+    // Gravação no offset +9 da estrutura (strb r0, [r2, 9])
+    dest_struct[9] = (u8)half_r0;
+
+    // 6. Limpeza da flag de status no registrador base (bic r0, r0, -0x80000000)
+    u32 base_val = *ptr_base;
+    base_val = base_val & ~0x80000000;
+    *ptr_base = base_val;
 }
