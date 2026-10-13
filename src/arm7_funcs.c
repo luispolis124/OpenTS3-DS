@@ -14,7 +14,7 @@ void fcn_02380554(u32 arg0, u32 arg1);
 s32  fcn_023803dc(void);
 void fcn_02380364(void);
 void fcn_02380400(void);
-void fcn_02380424(void);
+u32  fcn_02380424(void);
 
 /*
  * fcn_0238018c - Configuração Completa de Registradores de Hardware e Estruturas do ARM7
@@ -216,9 +216,10 @@ void fcn_02380400(void) {
 }
 
 /*
- * fcn_02380424 - Inicialização e varredura de memória (Parte 1)
+ * fcn_02380424 - Inicialização, Varredura de Memória e Testes de Barramento
  */
-void fcn_02380424(void) {
+u32 fcn_02380424(void) {
+    u32 r0 = 1;
     u32 r1 = 0;
     
     volatile u16* r2_ptr = *(volatile u16**)0x023804F8;
@@ -226,6 +227,52 @@ void fcn_02380424(void) {
     
     *r2_ptr = (u16)r1;
     u16 ip_val = *r3_ptr;
+
+    // 1. Primeiro loop de verificação
+    while (r1 == ip_val) {
+        r1++;
+        if (r1 == 2) {
+            return r0; // Retorna 1
+        }
+    }
+
+    // 2. Segundo bloco de verificação com offset ajustado
+    r1 = 0;
+    r3_ptr = (volatile u16*)((u32)r3_ptr - 0x400000);
+    *r2_ptr = (u16)r1;
+    ip_val = *r3_ptr;
+
+    while (r1 == ip_val) {
+        r1++;
+        if (r1 == 2) {
+            r0 = 2;
+            return r0;
+        }
+    }
+
+    // 3. Teste de escrita e leitura de padrão (0x55 e 0xAA)
+    volatile u8* r3_byte_ptr = (volatile u8*)((u32)r2_ptr + 0x0B000000);
+    r0 = 4;
     
-    // (Continua na próxima sequência do assembly...)
+    // Escreve o padrão 0x55
+    *r3_byte_ptr = 0x55;
+    
+    volatile u32* delay_ptr = *(volatile u32**)0x023804FC;
+    u32 delay_val = *delay_ptr;
+    while ((s32)delay_val >= 0) {
+        delay_val -= 4;
+    }
+
+    if (*r3_byte_ptr != 0x55) {
+        return r0;
+    }
+
+    // Escreve o padrão alternativo 0xAA
+    *r3_byte_ptr = 0xAA;
+    delay_val = *delay_ptr;
+    while ((s32)delay_val >= 0) {
+        delay_val -= 4;
+    }
+
+    return r0;
 }
