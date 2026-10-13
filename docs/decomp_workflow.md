@@ -1,4 +1,3 @@
-Aqui está a versão traduzida e adaptada para o inglês do seu guia de fluxo de trabalho de engenharia reversa (decomp_workflow.md), mantendo todos os detalhes técnicos do projeto para o The Sims 3 (DS):
 # Decompilation Flow — The Sims 3 (DS), ARM9/ARM7
 
 ## 0. What has already been verified in this ROM (VS3E, md5 `7cdf32d0…c1`)
