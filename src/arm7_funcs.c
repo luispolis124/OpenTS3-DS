@@ -8,9 +8,11 @@ typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
-// Protótipos das funções auxiliares chamadas pelas rotinas de inicialização
+// Protótipos das funções auxiliares chamadas pelas rotinas de inicialización
 void fcn_02380508(u32 src, u32 dest, u32 size);
 void fcn_02380554(u32 arg0, u32 arg1);
+s32  fcn_023803dc(void);
+void fcn_02380364(void);
 
 /*
  * fcn_0238018c - Configuração Completa de Registradores de Hardware e Estruturas do ARM7
@@ -88,49 +90,82 @@ void fcn_0238018c(void) {
 }
 
 /*
- * fcn_02380278 - Processamento de Tabelas e Inicialização de Blocos do ARM7
+ * fcn_02380278 - Processamento de Tabelas, Inicialização de Blocos e Verificações do ARM7
  */
 void fcn_02380278(void) {
     // 1. Acesso à estrutura base de controle (aav.0x023805d4)
     volatile u32** struct_base_ptr = *(volatile u32***)0x023805D4;
     u32* struct_ptr = (u32*)struct_base_ptr;
 
-    u32 ip = struct_ptr[0];       // Ponteiro atual (offset 0)
-    u32 limit = struct_ptr[1];     // Limite final (offset 4)
-    u32 r1_val = struct_ptr[2];    // Acumulador/Base (offset 8)
+    u32 ip = struct_ptr[0];        // Ponteiro atual (offset 0)
+    u32 limit = struct_ptr[1];      // Limite final (offset 4)
+    u32 r1_val = struct_ptr[2];     // Acumulador/Base (offset 8)
 
-    // 2. Loop de varredura e processamento de blocos
+    // 2. Loop de varredura e processamento do primeiro bloco de tabelas
     while ((s32)ip < (s32)limit) {
-        // Leitura de r0 com pós-incremento de 4 bytes (ldr r0, [ip], 4)
         u32 r0 = *(u32*)ip;
         ip += 4;
 
         u32 special_val = *(u32*)0x02380358;
         if (r0 == special_val) {
-            // Se for igual ao valor especial, avança o ponteiro em 0xC (12 bytes) e ajusta r1
             u32 r2_skip = *(u32*)ip;
             ip += 12;
             r1_val += r2_skip;
+            
+            // Chamada de callback externa mapeada (se aplicável no fluxo)
+            typedef void (*ext_callback_t)(void);
+            // ((ext_callback_t)0x2FE2134)();
+            
             continue;
         }
 
-        // Leitura do próximo argumento e chamada de fcn_02380508
         u32 arg_second = *(u32*)ip;
         ip += 4;
-        
         fcn_02380508(r0, arg_second, 4);
 
-        // Leitura dos próximos ponteiros para a rotina de preenchimento
         u32 arg_third = *(u32*)ip;
         ip += 4;
-        
         u32 arg_fourth = *(u32*)ip;
         ip += 4;
 
         fcn_02380554(arg_third, arg_fourth);
     }
 
-    // Atualiza de volta os ponteiros na estrutura
+    // Atualiza os ponteiros na estrutura principal
     struct_ptr[0] = ip;
     struct_ptr[2] = r1_val;
+
+    // 3. Verificação condicional pós-loop e processamento da segunda tabela
+    s32 check_res = fcn_023803dc();
+    if (check_res == 0) {
+        fcn_02380364();
+        
+        volatile u32* sub_struct = *(volatile u32**)0x0238035C;
+        u32 sub_val = sub_struct[0x1DC / 4];
+        
+        if (sub_val != 0) {
+            volatile u32** struct_bc_ptr = *(volatile u32***)0x023805BC;
+            u32* bc_ptr = (u32*)struct_bc_ptr;
+
+            u32 bc_ip = bc_ptr[0];
+            u32 bc_limit = bc_ptr[1];
+
+            while ((s32)bc_ip < (s32)bc_limit) {
+                u32 r0 = *(u32*)bc_ip;
+                bc_ip += 4;
+
+                u32 arg_second = *(u32*)bc_ip;
+                bc_ip += 4;
+                fcn_02380508(r0, arg_second, 4);
+
+                u32 arg_third = *(u32*)bc_ip;
+                bc_ip += 4;
+                u32 arg_fourth = *(u32*)bc_ip;
+                bc_ip += 4;
+
+                fcn_02380554(arg_third, arg_fourth);
+            }
+            bc_ptr[0] = bc_ip;
+        }
+    }
 }
