@@ -13,37 +13,32 @@ void fcn_02380508(u32 src, u32 dest, u32 size);
 void fcn_02380554(u32 arg0, u32 arg1);
 s32  fcn_023803dc(void);
 void fcn_02380364(void);
+void fcn_02380400(void);
+void fcn_02380424(void);
 
 /*
  * fcn_0238018c - Configuração Completa de Registradores de Hardware e Estruturas do ARM7
  */
 void fcn_0238018c(void) {
-    // 1. Leitura inicial do registrador base de controle
     volatile u32* ptr_base = *(volatile u32**)0x02380258;
     u32 val = *ptr_base;
     
-    // Teste de bit (tst r0, #-80000000 equivale a testar o bit mais significativo / sinal)
     if ((val & 0x80000000) == 0) {
-        // Se o bit não estiver setado, encerra a rotina (desvia para o fim / bx lr)
         return;
     }
     
-    // 2. Modificação de flags de hardware (leitura, alteração por OR e escrita)
     volatile u16* reg_ctrl1 = *(volatile u16**)0x0238025C;
-    *reg_ctrl1 = *reg_ctrl1 | 0x0001; // orr r0, r0, 1
+    *reg_ctrl1 = *reg_ctrl1 | 0x0001;
     
     volatile u16* reg_ctrl2 = *(volatile u16**)0x02380260;
-    *reg_ctrl2 = *reg_ctrl2 | 0x0100; // orr r0, r0, 0x100
+    *reg_ctrl2 = *reg_ctrl2 | 0x0100;
     
-    // Atualização do registrador base
     val = *ptr_base | 0x00010000;
     *ptr_base = val;
     
-    // 3. Salvamento de estado em ponteiros de destino (offset +4)
     volatile u32* dest_ptr = *(volatile u32**)0x02380264;
-    dest_ptr[1] = val; // str r0, [r2, 4]
+    dest_ptr[1] = val;
     
-    // 4. Operações de manipulação de bytes (ldrb / and / orr com deslocamentos)
     volatile u8* src_b1 = *(volatile u8**)0x02380268;
     u8 val_r0 = *src_b1;
     
@@ -62,11 +57,9 @@ void fcn_0238018c(void) {
     ip = val_r1 & 1;
     val_r0 = val_r0 | (ip << 7);
     
-    // Recuperação da estrutura de destino e gravação no offset +8 (strb r0, [r2, 8])
     volatile u8* dest_struct = (volatile u8*)dest_ptr;
     dest_struct[8] = val_r0;
     
-    // 5. Processamento de halfwords (16 bits) para o offset +9
     volatile u16* src_h1 = *(volatile u16**)0x02380274;
     u16 half_r0 = *src_h1;
     ip = half_r0 & 0x100;
@@ -80,10 +73,8 @@ void fcn_0238018c(void) {
     ip = half_r1 & 0x180;
     half_r0 = half_r0 | (ip >> 1);
 
-    // Gravação no offset +9 da estrutura (strb r0, [r2, 9])
     dest_struct[9] = (u8)half_r0;
 
-    // 6. Limpeza da flag de status no registrador base (bic r0, r0, -0x80000000)
     u32 base_val = *ptr_base;
     base_val = base_val & ~0x80000000;
     *ptr_base = base_val;
@@ -93,15 +84,13 @@ void fcn_0238018c(void) {
  * fcn_02380278 - Processamento de Tabelas, Inicialização de Blocos e Verificações do ARM7
  */
 void fcn_02380278(void) {
-    // 1. Acesso à estrutura base de controle (aav.0x023805d4)
     volatile u32** struct_base_ptr = *(volatile u32***)0x023805D4;
     u32* struct_ptr = (u32*)struct_base_ptr;
 
-    u32 ip = struct_ptr[0];        // Ponteiro atual (offset 0)
-    u32 limit = struct_ptr[1];      // Limite final (offset 4)
-    u32 r1_val = struct_ptr[2];     // Acumulador/Base (offset 8)
+    u32 ip = struct_ptr[0];
+    u32 limit = struct_ptr[1];
+    u32 r1_val = struct_ptr[2];
 
-    // 2. Loop de varredura e processamento do primeiro bloco de tabelas
     while ((s32)ip < (s32)limit) {
         u32 r0 = *(u32*)ip;
         ip += 4;
@@ -111,11 +100,6 @@ void fcn_02380278(void) {
             u32 r2_skip = *(u32*)ip;
             ip += 12;
             r1_val += r2_skip;
-            
-            // Chamada de callback externa mapeada (se aplicável no fluxo)
-            typedef void (*ext_callback_t)(void);
-            // ((ext_callback_t)0x2FE2134)();
-            
             continue;
         }
 
@@ -131,11 +115,9 @@ void fcn_02380278(void) {
         fcn_02380554(arg_third, arg_fourth);
     }
 
-    // Atualiza os ponteiros na estrutura principal
     struct_ptr[0] = ip;
     struct_ptr[2] = r1_val;
 
-    // 3. Verificação condicional pós-loop e processamento da segunda tabela
     s32 check_res = fcn_023803dc();
     if (check_res == 0) {
         fcn_02380364();
@@ -174,40 +156,76 @@ void fcn_02380278(void) {
  * fcn_02380364 - Verificações de Status e Cópia de Blocos de Memória do ARM7
  */
 void fcn_02380364(void) {
-    // 1. Acesso ao ponteiro base da estrutura de controle (armazenado em 0x023803CC)
     volatile u32* struct_base = *(volatile u32**)0x023803CC;
     
-    // 2. Leitura do registrador de status (offset 0x234) e teste de bit (tst r0, 4)
     u32 status_val = struct_base[0x234 / 4];
     if ((status_val & 4) != 0) {
-        // Se o bit 2 estiver setado, retorna imediatamente
         return;
     }
 
-    // 3. Primeira verificação e cópia condicional (offset 0x1DC)
     u32 check_1dc = struct_base[0x1DC / 4];
     if (check_1dc != 0) {
         u32 src_addr = struct_base[0x1D8 / 4];
-        
-        // Acesso ao ponteiro base aav.0x023805b0
         volatile u32* ptr_5b0 = *(volatile u32**)0x023805B0;
         u32 base_dest = *ptr_5b0;
-        
         u32 dest_addr = base_dest - 0x4000;
         
         fcn_02380508(src_addr, dest_addr, 0);
     }
 
-    // 4. Segunda verificação e cópia condicional (offset 0x1CC)
     u32 check_1cc = struct_base[0x1CC / 4];
     if (check_1cc != 0) {
         u32 src_addr2 = struct_base[0x1C8 / 4];
-        
         volatile u32* ptr_5b0 = *(volatile u32**)0x023805B0;
         u32 base_dest = *ptr_5b0;
-        
         u32 dest_addr2 = base_dest - 0x4000 - 0x4000;
         
         fcn_02380508(src_addr2, dest_addr2, 0);
     }
+}
+
+/*
+ * fcn_023803dc - Verificação de bit de estado na estrutura de controle
+ */
+s32 fcn_023803dc(void) {
+    volatile u8* struct_ptr = *(volatile u8**)0x023803F8;
+    u8 val = struct_ptr[8];
+    u8 masked = val & 0x0C;
+    
+    if (masked == 4) {
+        return 1;
+    }
+    return 0;
+}
+
+/*
+ * fcn_02380400 - Cópia de registros e halfwords estruturais
+ */
+void fcn_02380400(void) {
+    volatile u32* src_struct = *(volatile u32**)0x0238041C;
+    volatile u32* dest_struct = *(volatile u32**)0x02380420;
+    
+    u32 val_w = src_struct[4 / 4];
+    *dest_struct = val_w;
+    
+    volatile u16* src_h = (volatile u16*)src_struct;
+    volatile u16* dest_h = (volatile u16*)dest_struct;
+    
+    u16 val_h = src_h[8 / 2];
+    dest_h[4 / 2] = val_h;
+}
+
+/*
+ * fcn_02380424 - Inicialização e varredura de memória (Parte 1)
+ */
+void fcn_02380424(void) {
+    u32 r1 = 0;
+    
+    volatile u16* r2_ptr = *(volatile u16**)0x023804F8;
+    volatile u16* r3_ptr = (volatile u16*)((u32)r2_ptr - 0x400000);
+    
+    *r2_ptr = (u16)r1;
+    u16 ip_val = *r3_ptr;
+    
+    // (Continua na próxima sequência do assembly...)
 }
