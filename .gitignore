@@ -1,4 +1,60 @@
-# --- Binários e arquivos temporários ---
+# ==============================================================================
+# OpenTS3-DS - GitIgnore
+# Proteção para Código Fonte, Scripts, Ferramentas e Preservação de Direitos Autorais
+# ==============================================================================
+
+# --- ROMs e Mídia Proprietária (NUNCA SUBIR PRO GITHUB) ---
+*.nds
+*.NDS
+*.srl
+*.SRL
+*.bin
+*.BIN
+
+# --- Dump de Arquivos Extraídos e Assets do Jogo ---
+/dump/
+/extracted/
+/data_dump/
+/NitroFS/
+/LOCALIZATION/
+*.arc
+*.dat
+*.package
+
+# --- Arquivos de Saída dos Scripts Python/Ferramentas ---
+*.txt
+!docs/*.txt
+!README.md
+*.json
+!manifest.json
+*.csv
+
+# --- Arquivos de Save e Emulação ---
+*.sav
+*.dsv
+*.sta
+*.sgm
+*.ss1
+*.ss2
+
+# --- Projetos e Caches de Engenharia Reversa (Ghidra / Radare2 / Tinke) ---
+*.gpr
+*.rep/
+*.gdt
+.r2/
+.radare2
+tinke_temp/
+
+# --- Python (Caches dos Scripts de Extração/Injeção) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# --- Compilação, Binários e Arquivos Temporários C/C++ ---
 *.d
 *.o
 *.ko
@@ -36,22 +92,24 @@ Mkfile.old
 dkms.conf
 *.dwo
 
-# --- Proteção de Projeto ---
+# --- Diretórios de Build e Saídas de Compilação ---
 /build/
+/out/
+/dist/
+deps/
+
+# --- Arquivos de Configuração de IDEs e Editores ---
 .vscode/
 .vs/
 .idea/
-.DS_Store
-Thumbs.db
-deps/
+*.swp
+*~
 
-# --- Proteção de Copyright e Dados Privados ---
-# ROMs
-*.nds
-*.srl
-# Arquivos de Save
-*.sav
-# Save States (Emuladores costumam usar estas extensões)
-*.dsv
-*.sta
-*.sgm
+# --- Caches de Sistema Operacional ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
