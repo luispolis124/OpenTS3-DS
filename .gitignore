@@ -12,6 +12,8 @@
 *.BIN
 
 # --- Dump de Arquivos Extraídos e Assets do Jogo ---
+/assets/
+/data/
 /dump/
 /extracted/
 /data_dump/
