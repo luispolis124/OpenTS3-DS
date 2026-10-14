@@ -1,0 +1,193 @@
+{
+  "_comment": [
+    "Configuração do projeto. Gerada a partir de asm/layout.json (tools/extract_code.py) e conferida por",
+    "'python tools/project_config.py check'. Se a ROM de referência mudar, regenere com 'project_config.py init'.",
+    "Endereços em decimal (JSON não tem hexadecimal); o utilitário imprime em hex."
+  ],
+  "project": "OpenTS3DS",
+  "rom": {
+    "filename": "baserom.nds",
+    "output": "build/sims3.nds",
+    "title": "SIMS3",
+    "gamecode": "VS3E",
+    "unit_code": 2,
+    "size": 134217728,
+    "md5": "7cdf32d02eeeff592a0a4ab6bec7b5c1",
+    "sha1": "623dea494449e3f60ace691dfbf4f7fd285950f6"
+  },
+  "cpus": {
+    "arm9": {
+      "core": "ARM946E-S",
+      "architecture": "ARMv5TE",
+      "ghidra_language": "ARM:LE:32:v5t",
+      "ghidra_compiler": "default",
+      "gcc_cpu": "arm946e-s",
+      "objdump_arch": "armv5te",
+      "rom_offset": 16384,
+      "load": 33570816,
+      "entry": 33572864,
+      "size": 1558208,
+      "module_params": {
+        "ram": 33574832,
+        "file_offset": 4016,
+        "sdk_version": 84178225,
+        "autoload_entry_size": 16,
+        "static_bss_start": 35113696,
+        "static_bss_end": 35980192,
+        "autoload_start": 35113696,
+        "autoload_list_start": 35128992,
+        "autoload_list_end": 35129024
+      },
+      "segments": [
+        {
+          "name": "secure",
+          "ram": 33570816,
+          "size": 2048,
+          "bss": 0,
+          "file_offset": 0,
+          "kind": "data"
+        },
+        {
+          "name": "main",
+          "ram": 33572864,
+          "size": 1540832,
+          "bss": 866496,
+          "file_offset": 2048,
+          "kind": "code"
+        },
+        {
+          "name": "itcm",
+          "ram": 33521664,
+          "size": 15040,
+          "bss": 32,
+          "file_offset": 1542880,
+          "kind": "code"
+        },
+        {
+          "name": "dtcm",
+          "ram": 50200576,
+          "size": 256,
+          "bss": 3584,
+          "file_offset": 1557920,
+          "kind": "data"
+        },
+        {
+          "name": "autoload_list",
+          "ram": 35128992,
+          "size": 32,
+          "bss": 0,
+          "file_offset": 1558176,
+          "kind": "data"
+        }
+      ]
+    },
+    "arm7": {
+      "core": "ARM7TDMI",
+      "architecture": "ARMv4T",
+      "ghidra_language": "ARM:LE:32:v4t",
+      "ghidra_compiler": "default",
+      "gcc_cpu": "arm7tdmi",
+      "objdump_arch": "armv4t",
+      "rom_offset": 1796608,
+      "load": 37224448,
+      "entry": 37224448,
+      "size": 168092,
+      "module_params": {
+        "ram": 37225940,
+        "file_offset": 1492,
+        "sdk_version": 84178225,
+        "autoload_entry_size": 16,
+        "static_bss_start": 37226052,
+        "static_bss_end": 37226052,
+        "autoload_start": 37226052,
+        "autoload_list_start": 37392508,
+        "autoload_list_end": 37392540
+      },
+      "segments": [
+        {
+          "name": "main",
+          "ram": 37224448,
+          "size": 1604,
+          "bss": 0,
+          "file_offset": 0,
+          "kind": "code"
+        },
+        {
+          "name": "wram",
+          "ram": 58687488,
+          "size": 70956,
+          "bss": 10580,
+          "file_offset": 1604,
+          "kind": "code"
+        },
+        {
+          "name": "autoload1",
+          "ram": 50200576,
+          "size": 95500,
+          "bss": 10488,
+          "file_offset": 72560,
+          "kind": "code"
+        },
+        {
+          "name": "autoload_list",
+          "ram": 37392508,
+          "size": 32,
+          "bss": 0,
+          "file_offset": 168060,
+          "kind": "data"
+        }
+      ]
+    }
+  },
+  "overlays9": [
+    {
+      "id": 0,
+      "ram": 35980192,
+      "size": 60000,
+      "bss": 32,
+      "file_id": 0,
+      "compressed": false
+    },
+    {
+      "id": 1,
+      "ram": 36040224,
+      "size": 153504,
+      "bss": 0,
+      "file_id": 1,
+      "compressed": false
+    },
+    {
+      "id": 2,
+      "ram": 36040224,
+      "size": 7136,
+      "bss": 32,
+      "file_id": 2,
+      "compressed": false
+    }
+  ],
+  "dsi": {
+    "arm9i": {
+      "rom_offset": 129511424,
+      "load": 37748736,
+      "size": 11380,
+      "encrypted": true
+    },
+    "arm7i": {
+      "rom_offset": 129527808,
+      "load": 48758784,
+      "size": 291236,
+      "encrypted": false
+    }
+  },
+  "tools": {
+    "asm_dir": "asm",
+    "thumb_ranges": "tools/thumb_ranges.txt",
+    "disasm_backend": "auto",
+    "ghidra_export_dir": "build/ghidra_export"
+  },
+  "build": {
+    "build_dir": "build",
+    "compiler": "gcc",
+    "linkscript": "linkscript.ld"
+  }
+}
