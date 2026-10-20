@@ -1,58 +1,57 @@
 # OpenTS3DS
 
-Projeto de engenharia reversa e decompilação de **The Sims 3 (Nintendo DS)**, versão USA
-(código `VS3E`, "NDSi Enhanced"), para ARM9 (ARM946E-S) e ARM7 (ARM7TDMI).
+Reverse engineering and decompilation project for **The Sims 3 (Nintendo DS)**, USA version 
+(code `VS3E`, "NDSi Enhanced"), targeting ARM9 (ARM946E-S) and ARM7 (ARM7TDMI).
 
-> **Estado atual:** o repositório monta o ambiente (extração, layout de memória, linker script,
-> build, comparação e empacotamento). O código em `src/` ainda é um **esqueleto**: a ROM gerada
-> hoje não é jogável. O objetivo do build agora é validar o toolchain e medir, segmento por
-> segmento, o quanto o código compilado se aproxima do binário original (`make compare`).
+> **Current status:** The repository sets up the environment (extraction, memory layout, linker script,
+> build, comparison, and repacking). The code in `src/` is still a **skeleton**: the generated ROM
+> is currently not playable. The build goal right now is to validate the toolchain and measure, segment
+> by segment, how closely the compiled code approaches the original binary (`make compare`).
 
-Este repositório **não contém** a ROM nem código extraído dela. Você precisa da sua própria cópia.
+This repository **does not contain** the ROM or any code extracted from it. You must provide your own copy.
 
 ---
 
-## 1. Estrutura
+## 1. Structure
 
-```
+
 Makefile                 build (devkitARM / arm-none-eabi-gcc)
-linkscript.ld            linker script único; preprocessado por CPU (-DARM9 / -DARM7)
-config/project.json      identidade da ROM, CPUs, segmentos, overlays (dados verificados)
+linkscript.ld            single linker script; preprocessed via CPU (-DARM9 / -DARM7)
+config/project.json      ROM identity, CPUs, segments, overlays (verified data)
 include/
-  types.h                tipos básicos, ponto fixo, STATIC_ASSERT
-  memory_map.h           mapa de memória, layout desta ROM, registradores
-  nds.h                  header global: inclui os dois acima + vídeo/3D/DMA/timers/SPI/som/SWI
-  entity.h               esqueleto PROVISÓRIO das entidades do jogo
+types.h                basic types, fixed point, STATIC_ASSERT
+memory_map.h           memory map, ROM layout, registers
+nds.h                  global header: includes the above + video/3D/DMA/timers/SPI/sound/SWI
+entity.h               PROVISIONAL skeleton of game entities
 src/
-  arm9.c  arm7.c         pontos de entrada e stubs de init (esqueletos)
-  arm9_crt0.s            STUB de crt0 ARM9 (não é o original)
-  arm7_crt0.s            STUB de crt0 ARM7 (não é o original)
-  arm9/  arm7/           (crie) módulos novos: *.c e *.s entram no build automaticamente
+arm9.c  arm7.c         entry points and initialization stubs (skeletons)
+arm9_crt0.s            ARM9 crt0 STUB (not original)
+arm7_crt0.s            ARM7 crt0 STUB (not original)
+arm9/  arm7/           (create) new modules: *.c and *.s automatically included in build
 tools/
-  extract_code.py        extrai binários/layout da ROM e desmonta  -> asm/
-  project_config.py      valida a ROM e a config contra o layout extraído
-  rebuild_rom.py         compara o build com o original e empacota a ROM
-  ghidra_export_functions.py   exporta pseudo-C do Ghidra
-  thumb_ranges.txt       intervalos Thumb (ARM x Thumb não se distingue pelos bytes)
-docs/decomp_workflow.md  roteiro Ghidra/radare2 → C
-baserom.nds              SUA ROM (ignorada pelo git)
-asm/  build/             gerados (ignorados pelo git)
-```
+extract_code.py        extracts binaries/layout from ROM and disassembles -> asm/
+project_config.py      validates ROM and config against extracted layout
+rebuild_rom.py         compares build with original and repacks ROM
+ghidra_export_functions.py   exports Ghidra pseudo-C
+thumb_ranges.txt       Thumb ranges (ARM vs Thumb cannot be distinguished by bytes alone)
+docs/decomp_workflow.md  Ghidra/radare2 → C guide
+baserom.nds              YOUR ROM (ignored by git)
+asm/  build/             generated (ignored by git)
 
-## 2. Pré-requisitos
+## 2. Prerequisites
 
-| Item | Observação |
+| Item | Note |
 |---|---|
-| Toolchain ARM | **devkitARM** *ou* **arm-none-eabi-gcc + binutils** (prefixo `arm-none-eabi-`) |
+| ARM Toolchain | **devkitARM** *or* **arm-none-eabi-gcc + binutils** (`arm-none-eabi-` prefix) |
 | `make` | GNU make |
-| Python | 3.9 ou superior |
-| `capstone` (opcional) | `pip install capstone`; melhora o disassembly dos `.s` |
-| Sistema | Linux, macOS ou **WSL2** no Windows |
+| Python | 3.9 or higher |
+| `capstone` (optional) | `pip install capstone`; improves `.s` disassembly |
+| System | Linux, macOS, or **WSL2** on Windows |
 
-Instalação do toolchain (escolha um):
+Toolchain installation (choose one):
 
 ```sh
-# devkitARM (https://devkitpro.org/wiki/Getting_Started): instale o devkitPro pacman e então
+# devkitARM ([https://devkitpro.org/wiki/Getting_Started](https://devkitpro.org/wiki/Getting_Started)): install devkitPro pacman then
 sudo dkp-pacman -S devkitARM
 
 # Debian / Ubuntu
@@ -60,198 +59,140 @@ sudo apt install gcc-arm-none-eabi binutils-arm-none-eabi make python3
 
 # macOS (Homebrew)
 brew install arm-none-eabi-gcc
-```
 
-O Makefile usa `$DEVKITARM/bin/arm-none-eabi-` se existir; senão procura `arm-none-eabi-*` no
-`PATH`. Para um prefixo diferente: `make PREFIX=/caminho/arm-none-eabi-`.
-
-## 3. ROM de referência
-
-Copie a ROM para a raiz como `baserom.nds`. Ela precisa ser exatamente esta:
-
-| Campo | Valor |
+The Makefile uses $DEVKITARM/bin/arm-none-eabi- if it exists; otherwise, it looks for arm-none-eabi-* in the
+PATH. For a different prefix: make PREFIX=/path/to/arm-none-eabi-.
+3. Reference ROM
+Copy your ROM to the root directory as baserom.nds. It must match this exact version:
+| Field | Value |
 |---|---|
-| Código | `VS3E` |
-| Tamanho | 134217728 bytes |
-| MD5 | `7cdf32d02eeeff592a0a4ab6bec7b5c1` |
-| SHA-1 | `623dea494449e3f60ace691dfbf4f7fd285950f6` |
-
-```sh
+| Code | VS3E |
+| Size | 134217728 bytes |
+| MD5 | 7cdf32d02eeeff592a0a4ab6bec7b5c1 |
+| SHA-1 | 623dea494449e3f60ace691dfbf4f7fd285950f6 |
 make verify-rom
-```
 
-Com outra versão da ROM os endereços deste repositório **não valem**.
+If you use a different ROM version, the addresses in this repository will not match.
+4. Extracting Original Binaries
+make extract                          # generates asm/ (with disassembly)
+make extract EXTRACT_FLAGS=--no-disasm   # extracts and generates layout only (faster)
+make check-layout                     # checks config/project.json against extracted layout
 
-## 4. Extrair os binários originais
-
-```sh
-make extract                          # gera asm/ (com disassembly)
-make extract EXTRACT_FLAGS=--no-disasm   # só extrai e gera o layout (mais rápido)
-make check-layout                     # config/project.json confere com o que foi extraído?
-```
-
-O alvo roda `tools/extract_code.py`. Resultado em `asm/`:
-
-| Arquivo | Conteúdo |
+This target runs tools/extract_code.py. Output in asm/:
+| File | Content |
 |---|---|
-| `bin/arm9.bin`, `bin/arm7.bin` | binários exatamente como na ROM |
-| `bin/arm9_secure.bin`, `arm9_main.bin`, `arm9_itcm.bin`, … | um arquivo por segmento |
-| `bin/ov9_NNN.bin`, `bin/y9.bin` | overlays e tabela de overlays |
-| `bin/arm9i.bin`, `bin/arm7i.bin` | binários DSi (o ARM9i é criptografado) |
-| `layout.json`, `memory_layout.txt` | layout completo (fonte da verdade) |
-| `symbols/*.sym`, `arm9.r2`, `arm7.r2` | símbolos para Ghidra / radare2 |
-| `*.s` | disassembly por segmento (backend capstone, objdump ou `raw`) |
-| `nitrofs_files.txt` | lista de arquivos do NitroFS |
-
-`asm/bin/arm9_secure.bin` também é consumido pelo build (`src/arm9_crt0.s` o inclui com `.incbin`).
-
-### Layout resumido (confirmado na ROM)
-
-| | ARM9 | ARM7 |
+| bin/arm9.bin, bin/arm7.bin | binaries exactly as they are in the ROM |
+| bin/arm9_secure.bin, arm9_main.bin, arm9_itcm.bin, … | one file per segment |
+| bin/ov9_NNN.bin, bin/y9.bin | overlays and overlay table |
+| bin/arm9i.bin, bin/arm7i.bin | DSi binaries (ARM9i is encrypted) |
+| layout.json, memory_layout.txt | complete layout (source of truth) |
+| symbols/*.sym, arm9.r2, arm7.r2 | symbols for Ghidra / radare2 |
+| *.s | disassembly per segment (capstone backend, objdump, or raw) |
+| nitrofs_files.txt | NitroFS file list |
+asm/bin/arm9_secure.bin is also consumed by the build (src/arm9_crt0.s includes it via .incbin).
+Summary Layout (confirmed in ROM)
+|  | ARM9 | ARM7 |
 |---|---|---|
-| Carga / entrada | `0x02004000` / `0x02004800` | `0x02380000` / `0x02380000` |
-| Tamanho na ROM | `0x17C6C0` (sem compressão) | `0x2909C` (sem compressão) |
-| Autoload 0 | ITCM `0x01FF8000`, `0x3AC0` + bss `0x20` | WRAM `0x037F8000`, `0x1152C` + bss `0x2954` |
-| Autoload 1 | DTCM `0x02FE0000`, `0x100` + bss `0xE00` | `0x02FE0000`, `0x1750C` + bss `0x28F8` |
-| `.bss` estático | `0x0217CAE0`–`0x022503A0` | vazio |
+| Load / Entry | 0x02004000 / 0x02004800 | 0x02380000 / 0x02380000 |
+| ROM Size | 0x17C6C0 (uncompressed) | 0x2909C (uncompressed) |
+| Autoload 0 | ITCM 0x01FF8000, 0x3AC0 + bss 0x20 | WRAM 0x037F8000, 0x1152C + bss 0x2954 |
+| Autoload 1 | DTCM 0x02FE0000, 0x100 + bss 0xE00 | 0x02FE0000, 0x1750C + bss 0x28F8 |
+| Static .bss | 0x0217CAE0–0x022503A0 | empty |
+The DTCM base (0x02FE0000) is from the TWL-SDK, not NitroSDK (0x027E0000).
+ARM9 also contains the SDK tags [SDK+NINTENDO:BACKUP] and [SDK+Actimagine:Mobiclip SDK V1.2.1]
+(offset 0x1050): the game uses Mobiclip video middleware.
+5. Building
+make                 # build/arm9.bin and build/arm7.bin
+make compare         # % of matching bytes compared to original, per segment
+make rom             # build/sims3.nds (patches base ROM with new binaries)
+make selftest        # repacks ORIGINAL binaries: must reproduce ROM bit-by-bit
+make help            # all targets
 
-A base da DTCM (`0x02FE0000`) é a do TWL-SDK, **não** a do NitroSDK (`0x027E0000`).
-O ARM9 ainda traz as tags de SDK `[SDK+NINTENDO:BACKUP]` e `[SDK+Actimagine:Mobiclip SDK V1.2.1]`
-(offset `0x1050`): o jogo usa o middleware de vídeo Mobiclip.
-
-## 5. Compilar
-
-```sh
-make                 # build/arm9.bin e build/arm7.bin
-make compare         # % de bytes iguais ao original, por segmento
-make rom             # build/sims3.nds (patcha a ROM base com os binários novos)
-make selftest        # reempacota os binários ORIGINAIS: precisa reproduzir a ROM bit a bit
-make help            # todos os alvos
-```
-
-Opções úteis: `V=1` (mostra os comandos), `DEBUG=1` (`-g`), `OPT=-O1`, `STRICT=1`.
-
-- **`make compare` termina com erro enquanto houver diferença.** É de propósito (serve de teste em CI).
-- **`STRICT=1`** liga asserts no linker que exigem tamanhos de seção idênticos aos do original.
-  Use quando estiver fazendo matching; no dia a dia deixe desligado.
-- **`make rom` hoje gera uma ROM que não funciona**, porque o código compilado ainda é muito menor
-  que o original. A ferramenta avisa.
-- **Folga de tamanho:** o `pack` troca os binários no lugar. Sobram só `0x140` bytes no ARM9 e
-  `0x164` no ARM7 até a próxima estrutura da ROM. Binários maiores exigem reconstruir o NitroFS
-  (ndstool) e mover as demais estruturas. O empacotador também **não** recalcula o CRC da Secure
-  Area nem os hashes/assinatura do cabeçalho DSi: use a ROM gerada em emulador/flashcart no
-  modo DS.
-
-### Adicionando código
-
-Crie `src/arm9/meu_modulo.c` (ou `src/arm7/…`): o Makefile inclui `*.c` e `*.s` dessas pastas
-sozinho. Comece o arquivo com `#include "nds.h"`.
-
-Para colocar código ou dados em uma região específica, use as macros de `nds.h`:
-
-```c
+Useful options: V=1 (verbose commands), DEBUG=1 (-g), OPT=-O1, STRICT=1.
+ * make compare exits with an error while there are differences. This is intentional (used as a CI test).
+ * STRICT=1 enables linker asserts that require section sizes to be identical to the original.
+   Use when match-building; keep disabled during daily development.
+ * make rom currently generates a non-working ROM, because the compiled code is still much smaller
+   than the original. The tool will warn you.
+ * Size headroom: pack swaps binaries in-place. There is only 0x140 bytes left on ARM9 and
+   0x164 on ARM7 before the next ROM structure. Larger binaries require rebuilding the NitroFS
+   (ndstool) and moving other structures. The packer also does not recalculate the Secure Area CRC
+   or DSi header hashes/signatures: use the generated ROM in an emulator or flashcart in DS mode.
+Adding Code
+Create src/arm9/my_module.c (or src/arm7/…): the Makefile automatically includes *.c and *.s from these folders. Start your file with #include "nds.h".
+To place code or data into a specific region, use nds.h macros:
 #include "nds.h"
 
 ITCM_CODE void HotLoop(void);      /* ARM9: ITCM    (.itcm)      */
 DTCM_BSS  u32  gScratch[64];       /* ARM9: DTCM    (.dtcm_bss)  */
 WRAM_CODE void Mix(void);          /* ARM7: WRAM    (.wram)      */
-HIGH_BSS  u8   gBuffer[0x1000];    /* ARM7: RAM alta (.high_bss) */
-```
+HIGH_BSS  u8   gBuffer[0x1000];    /* ARM7: High RAM (.high_bss) */
 
-## 6. Linker script
-
-`linkscript.ld` é um arquivo só, preprocessado com `cpp` para cada CPU (o Makefile faz isso):
-
-```sh
+6. Linker Script
+linkscript.ld is a single file preprocessed with cpp for each CPU (handled by the Makefile):
 cpp -P -x c -undef -DARM9 linkscript.ld > build/arm9.ld
-```
 
-O formato da imagem é o do SDK: `[estático][dados do autoload 0][dados do autoload 1][lista]`.
-As seções de TCM têm endereço de execução (VMA) na TCM e de carga (LMA) logo após o bloco
-estático; `objcopy -O binary` segue a ordem de LMA e produz um arquivo no mesmo formato do
-`arm9.bin` da ROM. O `ModuleParams` (9 palavras) é gerado com `LONG()` no endereço original
-(`0x02004FB0` no ARM9, `0x023805D4` no ARM7). O `.bss` estático começa em cima da área onde os
-autoloads são carregados (como no original), por isso o crt0 copia os autoloads **antes** de
-zerar o `.bss`.
-
-Não coberto: overlays (cada um precisa do seu script), seções de C++ (`.init_array`), e o 3º
-campo das entradas da lista de autoload (desconhecido; emitimos o endereço).
-
-## 7. Configuração (`config/project.json`)
-
-JSON com a identidade da ROM, os dois CPUs (offsets, carga, entrada, `ModuleParams`,
-segmentos), overlays, binários DSi e caminhos de ferramentas. Endereços em decimal.
-
-```sh
-python tools/project_config.py show          # resumo em hex
+The image format follows the SDK layout: [static][autoload 0 data][autoload 1 data][list].
+TCM sections have execution addresses (VMA) in TCM and load addresses (LMA) right after the static block;
+objcopy -O binary follows LMA order, producing a file in the same format as the ROM's arm9.bin.
+ModuleParams (9 words) is generated via LONG() at the original address (0x02004FB0 on ARM9,
+0x023805D4 on ARM7). Static .bss starts right above the area where autoloads are loaded (just like
+in the original), which is why crt0 copies the autoloads before clearing .bss.
+Not covered: overlays (each requires its own script), C++ sections (.init_array), and the 3rd
+field of the autoload list entries (unknown; outputs address).
+7. Configuration (config/project.json)
+JSON file containing ROM identity, both CPUs (offsets, load, entry, ModuleParams, segments),
+overlays, DSi binaries, and tool paths. Decimal addresses.
+python tools/project_config.py show          # summary in hex
 python tools/project_config.py verify-rom baserom.nds
-python tools/project_config.py check         # config x asm/layout.json
+python tools/project_config.py check         # config vs asm/layout.json
 python tools/project_config.py get cpus.arm9.ghidra_language   # ARM:LE:32:v5t
-python tools/project_config.py init          # regenera a partir de asm/layout.json
-```
+python tools/project_config.py init          # regenerates from asm/layout.json
 
-Em scripts Python: `from project_config import load; cfg = load()`.
-Linguagens do Ghidra: **`ARM:LE:32:v5t`** (ARM9) e **`ARM:LE:32:v4t`** (ARM7).
-
-## 8. Análise no Ghidra / radare2
-
-Veja `docs/decomp_workflow.md` (importação por segmento, Thumb, overlays, símbolos). Resumo:
-
-```sh
+In Python scripts: from project_config import load; cfg = load().
+Ghidra languages: ARM:LE:32:v5t (ARM9) and ARM:LE:32:v4t (ARM7).
+8. Ghidra / radare2 Analysis
+See docs/decomp_workflow.md (segment-based import, Thumb, overlays, symbols). Summary:
 r2 -a arm -b 32 -m 0x02004800 asm/bin/arm9_main.bin -i asm/arm9.r2
-```
 
-No Ghidra, `tools/ghidra_export_functions.py` exporta o pseudo-C e gera o `thumb_ranges.txt`
-que `tools/extract_code.py --thumb-ranges` usa.
-
-## 9. Matching
-
-"Matching" significa recompilar C e obter **os mesmos bytes** do original. Isso exige o
-**compilador original, na versão e com as flags originais**. Este repositório usa GCC, que
-**não** reproduz o código do jogo byte a byte. O build atual serve para:
-
-- validar o layout de memória e o formato da imagem;
-- escrever e testar a lógica em C (decompilação funcional, "non-matching");
-- medir a distância com `make compare`.
-
-O compilador do jogo **ainda não foi identificado**: uma busca simples por strings no ARM9/ARM7 e
-nos overlays não achou assinatura de compilador. Antes de investir em matching:
-
-1. identifique o compilador e as flags (comparando o código gerado por candidatos com funções
-   pequenas do binário; decomp.me ajuda);
-2. confira se um linker script do GNU `ld` basta ou se será preciso o linker do mesmo fabricante;
-3. troque `CC`/`CFLAGS9`/`CFLAGS7` (`make CC=… CFLAGS9=…`) e use um diff de assembly
-   (objdiff/asm-differ) por função.
-
-## 10. O que foi testado
-
-| Item | Como | Resultado |
+In Ghidra, tools/ghidra_export_functions.py exports pseudo-C and generates thumb_ranges.txt,
+which is used by tools/extract_code.py --thumb-ranges.
+9. Matching
+"Matching" means recompiling C code to yield exact byte-for-byte matches with the original. This requires
+the original compiler version with original flags. This repository uses GCC, which
+does not reproduce game code byte-for-byte. The current build serves to:
+ * validate the memory layout and image format;
+ * write and test C logic (functional decompilation, "non-matching");
+ * measure distance using make compare.
+The game's compiler has not been identified yet: a simple string search in ARM9/ARM7 and overlays
+did not reveal any compiler signatures. Before investing in matching:
+ * identify the compiler and flags (comparing candidate-generated code with small binary functions; decomp.me helps);
+ * verify whether a GNU ld linker script is sufficient or if the manufacturer's linker is required;
+ * swap CC/CFLAGS9/CFLAGS7 (make CC=… CFLAGS9=…) and use function-level assembly diffing
+   (objdiff/asm-differ).
+10. Tested Items
+| Item | Method | Result |
 |---|---|---|
-| `extract_code.py`, `project_config.py`, `rebuild_rom.py` | rodados na ROM real | ok; `selftest` reproduz a ROM bit a bit; CRC16 do cabeçalho confere |
-| `linkscript.ld` | linkado com o `ld` do host (x86) usando os fontes reais e objetos sintéticos, ARM9 e ARM7, com e sem `STRICT=1` | ModuleParams, lista de autoload e imagem corretos; asserts disparam |
-| Makefile | fluxo completo com um toolchain falso que traduz `arm-none-eabi-*` para o host | extract, build, incremental, `-j`, relink, compare, rom, selftest, clean |
-| C/H | compilados com `gcc -std=c99 -Wall -Wextra -Wpedantic` | sem avisos |
-| **Não testado** | compilar/assemblar de verdade com `arm-none-eabi-gcc`; os `crt0` em assembly; boot em emulador ou hardware; Ghidra/radare2; backends capstone/objdump com saída real | podem exigir ajustes |
-
-Os `crt0` são stubs escritos sem assembler ARM disponível: valores de CP15 e sequência de
-inicialização seguem o padrão do hardware, mas devem ser trocados pela decompilação do `_start`
-real (`0x02004800`).
-
-## 11. Problemas comuns
-
-| Sintoma | Causa provável |
+| extract_code.py, project_config.py, rebuild_rom.py | run on real ROM | ok; selftest reproduces ROM bit-by-bit; header CRC16 matches |
+| linkscript.ld | linked with host (x86) ld using real sources and synthetic objects, ARM9 and ARM7, with and without STRICT=1 | ModuleParams, autoload list, and image are correct; asserts trigger |
+| Makefile | full workflow using a fake toolchain translating arm-none-eabi-* to host | extract, build, incremental, -j, relink, compare, rom, selftest, clean |
+| C/H | compiled with gcc -std=c99 -Wall -Wextra -Wpedantic | no warnings |
+| Not tested | actual compilation/assembly with arm-none-eabi-gcc; assembly crt0 files; booting in an emulator or hardware; Ghidra/radare2; capstone/objdump backends with real output | may require tweaks |
+The crt0 files are stubs written without an available ARM assembler: CP15 values and initialization
+sequence follow hardware standards, but should be replaced by decompilation of the real _start
+(0x02004800).
+11. Common Issues
+| Symptom | Probable Cause |
 |---|---|
-| `arm-none-eabi-gcc nao encontrado` | toolchain fora do `PATH`; use `PREFIX=…` ou exporte `DEVKITARM` |
-| `baserom.nds nao encontrado` | copie a ROM para a raiz (seção 3) |
-| `ROM diferente da de referência` | outra versão/região da ROM; os endereços não valem |
-| `.module_params` / `.crt0` sobrepõem | `src/arm9_crt0.s` passou de `0x7B0` bytes (ARM9) ou `0x5D4` (ARM7) |
-| `ARM9: .bss estatico invade o overlay 0` | `.bss`/`.data` cresceram além de `0x022503A0` |
-| `ARM9: DTCM sem espaco para a pilha` | seções `.dtcm*` grandes demais (16 KB menos 2 KB de pilha e 1 KB de sistema) |
-| `make compare` falha | esperado enquanto houver diferença; veja o % por segmento |
-| `make rom`: "só cabem 0x…" | binário maior que o espaço livre (seção 5) |
-
-## 12. Aviso legal
-
-The Sims 3 e o código do jogo pertencem aos seus titulares. Este projeto não distribui a ROM nem
-código derivado dela. `asm/`, `build/` e `*.nds` ficam no `.gitignore`. Use apenas uma cópia que
-você possui legalmente.
+| arm-none-eabi-gcc not found | toolchain missing from PATH; use PREFIX=… or export DEVKITARM |
+| baserom.nds not found | copy the ROM to the root directory (section 3) |
+| ROM differs from reference | different ROM version/region; addresses won't match |
+| .module_params / .crt0 overlap | src/arm9_crt0.s exceeded 0x7B0 bytes (ARM9) or 0x5D4 (ARM7) |
+| ARM9: static .bss invades overlay 0 | .bss/.data grew past 0x022503A0 |
+| ARM9: DTCM out of stack space | .dtcm* sections too large (16 KB minus 2 KB stack and 1 KB system) |
+| make compare fails | expected while differences remain; check % per segment |
+| make rom: "only 0x… bytes left" | binary larger than available space (section 5) |
+12. Legal Disclaimer
+The Sims 3 and game code belong to their respective owners. This project does not distribute the ROM or
+any derived code from it. asm/, build/, and *.nds are listed in .gitignore. Only use a legally
+owned copy.
